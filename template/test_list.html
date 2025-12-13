@@ -1,0 +1,109 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'test_list.css' %}">
+<!-- Bootstrap 5 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+<style>
+    .test-card {
+        border: 2px solid #1e73be;
+        border-radius: 10px;
+        padding: 20px;
+        height: 150px;
+        transition: 0.2s ease-in-out;
+    }
+    .test-card:hover {
+        background: #f5f9ff;
+        transform: translateY(-3px);
+    }
+    .arrow-icon {
+        font-size: 32px;
+        color: #1e73be;
+    }
+</style>
+<div class="container">
+  <h2 class="page-title">Life in the UK Tests</h2>
+
+  <div class="tests-layout">
+    <div class="tests-grid">
+      {% for test in tests %}
+        <div class="test-card">
+          <h3>{{ test.title }}</h3>
+          <hr>
+          <div class="takeIcon">
+            <p>Take the test</p>
+          <a href="{% url 'take_test' test.id %}" class="start-btn">➜</a>
+          </div>
+          
+        </div>
+      {% empty %}
+        <p>No tests available.</p>
+      {% endfor %}
+    </div>
+
+    <div class="support-box">
+      <h3>Support this project</h3>
+      <p>
+        Lifeintheuktestweb has been created as a free resource to help migrants
+        prepare for the British Citizenship test. If you like this project and
+        would like to help us maintain it please donate.
+      </p>
+      <button class="donate-btn">Donate</button>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+    <h2 class="fw-bold mb-4">Tests by Chapter</h2>
+
+    <!-- Chapter filter -->
+    <form method="get" class="mb-4">
+        <div class="row g-2 align-items-center">
+            <div class="col-auto">
+                <label for="chapter" class="col-form-label fw-bold">Filter by Chapter:</label>
+            </div>
+            <div class="col-auto">
+                <select name="chapter" id="chapter" class="form-select" onchange="this.form.submit()">
+                    <option value="">All Chapters</option>
+                    {% for chapter in chapters %}
+                        <option value="{{ chapter }}" {% if chapter|stringformat:"s" == selected_chapter %}selected{% endif %}>
+                            Chapter {{ chapter }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </form>
+
+    <div class="row g-4">
+        {% for test in tests %}
+        <div class="col-12 col-sm-6 col-md-4">
+            <div class="test-card d-flex flex-column justify-content-between">
+                <div>
+                    <h5 class="fw-bold">{{ test.title }}</h5>
+                    {% if test.description %}
+                        <p>{{ test.description|truncatechars:80 }}</p>
+                    {% endif %}
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between align-items-center">
+                    <p class="mb-0">Take the test</p>
+                    <a href="{% url 'take_test' test.id %}">
+                        <i class="arrow-icon bi bi-arrow-right-circle"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+            <p class="text-muted">No tests found for this chapter.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+

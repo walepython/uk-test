@@ -1,0 +1,697 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}FAQs - Life in the UK Test{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'home.css' %}">
+<link rel="stylesheet" href="{% static 'chapter1.css' %}">
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #ffffff;
+    }
+
+    /* FAQ Container */
+    .faq-container {
+        
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    /* FAQ Header */
+    .faq-header {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    .faq-header h1 {
+        font-size: 36px;
+        color: #333;
+        margin-bottom: 10px;
+        font-weight: bold;
+    }
+
+    .faq-header p {
+        font-size: 18px;
+        color: #666;
+        max-width: 800px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    /* FAQ Content Box */
+    .faq-content {
+        background: #fff;
+        max-width:70%;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 40px;
+        margin-bottom: 40px;
+    }
+
+    /* FAQ Sections */
+    .faq-section {
+        margin-bottom: 40px;
+        padding-bottom: 30px;
+        border-bottom: 2px solid #eee;
+    }
+
+    .faq-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    /* FAQ Questions (with hash symbol) */
+    .faq-question {
+        color: #2d9cdb;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        line-height: 1.4;
+    }
+
+    .faq-question::before {
+        /* content: "# "; */
+        color: #2d9cdb;
+        font-weight: bold;
+    }
+
+    /* FAQ Answers */
+    .faq-answer {
+        color: #333;
+        font-size: 20px;
+        line-height: 1.8;
+        margin-bottom: 15px;
+    }
+
+    .faq-answer strong {
+        color: #2d9cdb;
+        font-weight: bold;
+    }
+
+    /* Numbered Lists */
+    .numbered-list {
+        counter-reset: item;
+        margin-left: 30px;
+        margin-top: 20px;
+    }
+
+    .numbered-list li {
+        counter-increment: item;
+        margin-bottom: 15px;
+        line-height: 1.6;
+        position: relative;
+        padding-left: 10px;
+    }
+
+    .numbered-list li::before {
+        content: counter(item) ". ";
+        font-weight: bold;
+        color: #2d9cdb;
+        position: absolute;
+        left: -25px;
+    }
+
+    /* Donation Section */
+    .donation-section {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 40px;
+        text-align: center;
+        margin-top: 50px;
+        border-top: 3px solid #2d9cdb;
+    }
+
+    .donation-section h3 {
+        color: #2d9cdb;
+        font-size: 28px;
+        margin-bottom: 20px;
+        font-weight: bold;
+    }
+
+    .donation-section p {
+        color: #555;
+        font-size: 16px;
+        line-height: 1.7;
+        margin-bottom: 25px;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .donation-section strong {
+        color: #2d9cdb;
+        font-weight: bold;
+    }
+
+    .donate-button {
+        display: inline-block;
+        background: #2d9cdb;
+        color: white;
+        padding: 15px 40px;
+        font-size: 18px;
+        font-weight: bold;
+        text-decoration: none;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-top: 10px;
+    }
+
+    .donate-button:hover {
+        background: #1a7bb9;
+    }
+
+    /* Support Note */
+    .support-note {
+        font-size: 14px;
+        color: #777;
+        margin-top: 15px;
+        font-style: italic;
+    }
+
+    /* Divider Line */
+    .divider {
+        height: 2px;
+        background: #eee;
+        margin: 40px 0;
+        border: none;
+    }
+
+    /* Test Statistics */
+    .test-stat {
+        background: #e8f4fd;
+        border-left: 4px solid #2d9cdb;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 0 5px 5px 0;
+    }
+
+    .test-stat p {
+        margin: 0;
+        color: #333;
+        font-size: 16px;
+        line-height: 1.6;
+    }
+
+    /* Test Requirements */
+    .requirements {
+        background: #f9f9f9;
+        padding: 25px;
+        border-radius: 5px;
+        margin: 25px 0;
+        border: 1px solid #eaeaea;
+    }
+
+    .requirements p {
+        margin: 10px 0;
+        padding-left: 20px;
+        position: relative;
+    }
+
+    .requirements p::before {
+        content: "•";
+        color: #2d9cdb;
+        font-weight: bold;
+        position: absolute;
+        left: 0;
+    }
+    .main{
+        display:flex;
+        flex-direction:row;
+        gap: 30px;
+        width:100%;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .faq-container {
+            padding: 0 15px;
+            margin: 20px auto;
+            
+        }
+        .main{
+        flex-direction:column;
+        }
+
+        .faq-content {
+            padding: 25px;
+            max-width:100%;
+        }
+
+        .faq-header h1 {
+            font-size: 28px;
+        }
+
+        .faq-question {
+            font-size: 20px;
+        }
+
+        .faq-answer {
+            font-size: 15px;
+        }
+
+        .donation-section {
+            padding: 30px 20px;
+        }
+
+        .donation-section h3 {
+            font-size: 24px;
+        }
+
+        .numbered-list {
+            margin-left: 20px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .faq-header h1 {
+            font-size: 24px;
+        }
+
+        .faq-question {
+            font-size: 18px;
+        }
+        .main{
+        flex-direction:column;
+        }
+
+        .faq-content {
+            padding: 20px;
+        }
+
+        .donation-section {
+            padding: 25px 15px;
+        }
+
+        .donate-button {
+            padding: 12px 30px;
+            font-size: 16px;
+        }
+    }
+</style>
+
+<div class="faq-container">
+    <!-- FAQ Header -->
+    <div class="faq-header">
+        <h1>FAQs</h1>
+        <p>Frequently Asked Questions about the Life in the UK Test</p>
+    </div>
+   <div class="main">
+    <!-- FAQ Content -->
+    <div class="faq-content">
+        <!-- What is a Life in the UK Test? -->
+        <div class="faq-section">
+            <h2 class="faq-question">What is a life in the UK test?</h2>
+            <div class="faq-answer">
+                <p>The Life in the UK test or British citizenship test is one of the requirements that individuals who want to become permanent residents of the UK or apply to be British citizens need to fulfil. The British citizenship test is an examination used to determine applicants knowledge of life in the United Kingdom.</p>
+                
+                <p>It is a test that consists of a multiple choice exam made up of <strong>24 questions to be answered in 45 minutes</strong>. Applicants need to answer <strong>18 questions correctly</strong> in order to pass the exam. All the questions are based on the <strong>Life in the UK: A Guide for New Residents Handbook</strong>, which comprises six chapters covering a number of subjects from the history of Britain, its people customs and traditions to the political systems and laws that govern the United Kingdom.</p>
+            </div>
+        </div>
+
+        <hr class="divider">
+
+        <!-- How can you prepare for the test? -->
+        <div class="faq-section">
+            <h2 class="faq-question">How can you prepare for the test?</h2>
+            <div class="faq-answer">
+                <p>There are many free and paid online resources to prepare for the test. <strong>Life in the UK Test Web</strong> provides a good compilation of questions and answers covering the contents of the "Life in the UK: A Guide for New Residents (3rd Edition)" handbook used to test applicants on the topics of the book.</p>
+                
+                <p>We provide <strong>free online Life in the UK practice tests</strong> to prepare you to pass your Life in the UK Test or British Citizenship Test. Our multiple choice tests will help remember the facts and contents of the book in an easy way and at the same time you will get familiarised with the format of the real test.</p>
+                
+                <div class="test-stat">
+                    <p><strong>What is the test pass rate?</strong></p>
+                    <p>According to the UK Visas and Migration Department of the Home Office, a total of <strong>748,613 Life in the UK tests</strong> were taken between the 2nd quarter of 2010 and the 3rd quarter of 2014, of which <strong>185,863 tests</strong> were failed. Therefore, the pass rate during this period was <strong>75.17%</strong>.</p>
+                </div>
+            </div>
+        </div>
+
+        <hr class="divider">
+
+        <!-- What do you need to book the life in the UK test? -->
+        <div class="faq-section">
+            <h2 class="faq-question">What do you need to book the life in the UK test?</h2>
+            <div class="faq-answer">
+                <p>Once you feel ready to take the test you have to register with the Life in the UK online booking service. This should be done at least <strong>7 days before</strong> taking the test.</p>
+                
+                <p>In order to book your test, you will need to provide:</p>
+                
+                <div class="requirements">
+                    <p><strong>A valid proof of identity</strong></p>
+                    <p><strong>A debit or credit card</strong> to make the payment</p>
+                    <p><strong>An email address</strong> to register your account</p>
+                </div>
+                
+                <p>Further details can be found on the official government website.</p>
+                
+                <p><strong>Where can you take the test?</strong></p>
+                <p>The British citizenship test can be taken at <strong>over 60 life in the UK testing centres</strong> distributed across the country. At the time of booking your test, you will be presented with a choice of testing centres close to you and the availability to take exams at those locations.</p>
+                
+                <p><strong>How much does the Life in the UK Test cost?</strong></p>
+                <p>The life in the UK test costs <strong>£50</strong>, which will need to be paid prior to taking the test. If an applicant has to re-take the test, the fees will need to be paid again.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar-column1">
+        <!-- Sidebar Column -->
+        <aside class="sidebar-column">
+            <!-- Support Card -->
+            <div class="support-card">
+                <div class="support-header">
+                    <h3>Support this project</h3>
+                    <div class="heart-icon">♥</div>
+                </div>
+                <div class="support-body">
+                    <p>
+                        Lifeintheuktestweb has been created as a free source to help migrants 
+                        prepare for the British Citizenship test. If you like this project 
+                        and would like to help us maintain it please donate.
+                    </p>
+                    
+                    <div class="thank-you">
+                        <strong>Thanks and good luck!</strong>
+                    </div>
+                    
+                    <!-- Donate Section -->
+                    <div class="donate-section">
+                        <h4>Donate</h4>
+                        <div class="donate-options">
+                            <button class="donate-option">£5</button>
+                            <button class="donate-option">£10</button>
+                            <button class="donate-option">£20</button>
+                            <button class="donate-option">£50</button>
+                            <button class="donate-button custom-amount">Donate Now</button>
+                        </div> 
+                    </div>
+                </div>
+            </div>
+        </aside>
+        <!-- Test Your Knowledge Card -->
+        <div class="test-card">
+            <h3>TEST YOUR KNOWLEDGE</h3>
+            <p>Take a quiz based on Chapter 1 content</p>
+            <div class="quiz-stats">
+                <div class="stat">
+                    <span class="stat-number">10</span>
+                    <span class="stat-label">Questions</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">75%</span>
+                    <span class="stat-label">Pass Mark</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">15</span>
+                    <span class="stat-label">Minutes</span>
+                </div>
+            </div>
+            <a href="#" class="start-quiz-btn">Start Chapter 1 Quiz</a>
+        </div>
+        
+        <!-- Navigation Card -->
+        <div class="navigation-card">
+            <h4>Chapter Navigation</h4>
+            <div class="chapter-list">
+                <a href="#" class="chapter-link active">
+                    <span class="chapter-number">1</span>
+                    <span class="chapter-title">Values and Principles</span>
+                </a>
+                <a href="#" class="chapter-link">
+                    <span class="chapter-number">2</span>
+                    <span class="chapter-title">What is the UK?</span>
+                </a>
+                <a href="#" class="chapter-link">
+                    <span class="chapter-number">3</span>
+                    <span class="chapter-title">History</span>
+                </a>
+                <a href="#" class="chapter-link">
+                    <span class="chapter-number">4</span>
+                    <span class="chapter-title">Modern Society</span>
+                </a>
+                <a href="#" class="chapter-link">
+                    <span class="chapter-number">5</span>
+                    <span class="chapter-title">Government & Law</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Download Card -->
+        <div class="download-card">
+            <h4>Download Resources</h4>
+            <div class="download-links">
+                <a href="#" class="download-link">
+                    📄 Chapter 1 Summary (PDF)
+                </a>
+                <a href="#" class="download-link">
+                    🎧 Audio Version
+                </a>
+                <a href="#" class="download-link">
+                    📋 Key Points Checklist
+                </a>
+                <a href="#" class="download-link">
+                    ❓ Practice Questions
+                </a>
+            </div>
+        </div>
+    
+        <!-- Quick Facts Card -->
+        <div class="facts-card">
+            <h4>Quick Facts</h4>
+            <div class="fact-item">
+                <span class="fact-icon">🇬🇧</span>
+                <div class="fact-content">
+                    <strong>UK Population:</strong>
+                    <span>~67 million</span>
+                </div>
+            </div>
+            <div class="fact-item">
+                <span class="fact-icon">🏛️</span>
+                <div class="fact-content">
+                    <strong>Parliaments:</strong>
+                    <span>4 separate legislatures</span>
+                </div>
+            </div>
+            <div class="fact-item">
+                <span class="fact-icon">🏝️</span>
+                <div class="fact-content">
+                    <strong>Overseas Territories:</strong>
+                    <span>14 territories worldwide</span>
+                </div>
+            </div>
+        </div>
+     </div>
+    </div>
+
+</div>
+
+<!-- Modal for Custom Donation Amount -->
+<div class="modal fade" id="donateModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Make a Donation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="customAmount">Enter Amount (£)</label>
+                    <input type="number" class="form-control" id="customAmount" min="1" step="0.01" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label for="donorName">Your Name (Optional)</label>
+                    <input type="text" class="form-control" id="donorName" placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label for="donorMessage">Message (Optional)</label>
+                    <textarea class="form-control" id="donorMessage" rows="3" placeholder="Thank you for this amazing resource!"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="processDonation">Proceed to Payment</button>
+            </div>
+        </div>
+    </div>
+</div>
+    <style>
+    .sidebar-column1 {
+    position: sticky;
+    top: 20px; 
+    display: flex;
+    width:100%;
+    flex-direction: column;
+    gap: 25px;
+    }
+    
+    
+    h2, h3, h4 {
+    color: #0b0c0c;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #1d70b8;
+    }
+    
+    h2 {
+    font-size: 24px;
+    }
+    
+    h3 {
+    font-size: 20px;
+    border-bottom-width: 1px;
+    }
+    
+    h4 {
+    font-size: 18px;
+    border-bottom: 1px dashed #1d70b8;
+    }
+    
+    /* Facts Card */
+    .facts-card {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-top: 25px;
+    }
+    
+    .facts-card h4 {
+    color: #2d3748;
+    margin-bottom: 20px;
+    text-align: center;
+    }
+    
+    .fact-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 0;
+    border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .fact-item:last-child {
+    border-bottom: none;
+    }
+    
+    .fact-icon {
+    font-size: 1.5rem;
+    width: 40px;
+    text-align: center;
+    }
+    
+    .fact-content {
+    flex-grow: 1;
+    }
+    
+    .fact-content strong {
+    display: block;
+    color: #2d3748;
+    font-size: 0.9rem;
+    }
+    
+    .fact-content span {
+    color: #4a5568;
+    font-size: 0.9rem;
+    }
+    
+    .facts-card {
+    border-top: 4px solid #9f7aea;
+    }
+    .support-card {
+    border-top: 4px solid #667eea;
+    }
+    
+    .test-card {
+    border-top: 4px solid #48bb78;
+    text-align: center;
+    }
+    
+    .navigation-card {
+    border-top: 4px solid #e53e3e;
+    }
+    
+    .download-card {
+    border-top: 4px solid #ed8936;
+    }
+    
+    </style>
+    {% endblock %}
+    {% block extra_js %}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    // Donation functionality
+    document.querySelectorAll('.donate-option:not(.custom-amount)').forEach(button => {
+        button.addEventListener('click', function() {
+            const amount = this.textContent.replace('£', '');
+            alert(`Thank you for choosing to donate £${amount}! This will help us maintain and improve this free resource.`);
+        });
+    });
+    
+    document.querySelector('.custom-amount').addEventListener('click', function() {
+        const modal = new bootstrap.Modal(document.getElementById('donateModal'));
+        modal.show();
+    });
+    
+    document.getElementById('processDonation').addEventListener('click', function() {
+        const amount = document.getElementById('customAmount').value;
+        if (!amount || parseFloat(amount) <= 0) {
+            alert('Please enter a valid amount.');
+            return;
+        }
+        alert(`Thank you for your generous donation of £${amount}! We truly appreciate your support.`);
+        bootstrap.Modal.getInstance(document.getElementById('donateModal')).hide();
+    });
+    
+    // Mark chapter as complete
+    const markCompleteBtn = document.getElementById('markCompleteBtn');
+    const completionStatus = document.getElementById('completionStatus');
+    
+    markCompleteBtn.addEventListener('click', function() {
+        const checkboxes = document.querySelectorAll('.checkpoint input[type="checkbox"]');
+        const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+        
+        if (allChecked) {
+            completionStatus.textContent = 'Completed!';
+            completionStatus.className = 'completion-status completed';
+            markCompleteBtn.textContent = '✓ Chapter Completed';
+            markCompleteBtn.className = 'btn btn-success';
+            alert('Congratulations! You have completed Chapter 1.');
+        } else {
+            alert('Please check all the understanding checkpoints before marking as complete.');
+        }
+    });
+    
+    // Update progress when checkboxes are checked
+    document.querySelectorAll('.checkpoint input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.checkpoint input[type="checkbox"]');
+            const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+            const total = checkboxes.length;
+            const progress = Math.round((checkedCount / total) * 100);
+            
+            // Update progress in header
+            const progressElement = document.querySelector('.chapter-meta .progress strong');
+            if (progressElement) {
+                progressElement.textContent = `${progress}%`;
+            }
+        });
+    });
+    
+    // Quiz button
+    document.querySelector('.start-quiz-btn').addEventListener('click', function(e) {
+        e.preventDefault();
+        alert('Starting Chapter 1 quiz. Good luck!');
+        // In production, this would start the quiz
+    });
+    });
+</script>
+    
+    
+    {% endblock %}

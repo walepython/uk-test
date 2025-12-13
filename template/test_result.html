@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="results-container">
+    <div class="results-card">
+        
+        {% if passed == "True" %}
+        <div class="status passed">PASS</div>
+        {% else %}
+        <div class="status failed">FAIL</div>
+        {% endif %}
+        
+        <h2>{{ test.title }} - Results</h2>
+
+        <div class="result-items">
+            <div class="result-item">
+                <span>Total Questions:</span>
+                <strong>{{ total_questions }}</strong>
+            </div>
+
+            <div class="result-item">
+                <span>Correct Answers:</span>
+                <strong>{{ correct_answers }}</strong>
+            </div>
+
+            <div class="result-item">
+                <span>Score Percentage:</span>
+                <strong>{{ percentage_score|floatformat:2 }}%</strong>
+            </div>
+
+            <div class="result-item">
+                <span>Time Taken:</span>
+                <strong>{{ time_taken }}</strong>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <a href="{% url 'take_test' test.id %}" class="btn btn-primary">Retake Test</a>
+            <a href="/" class="btn btn-secondary">Go Home</a>
+        </div>
+
+    </div>
+</div>
+<style>
+
+.results-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 50px;
+}
+
+.results-card {
+    width: 500px;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.status {
+    padding: 10px;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
+
+.passed {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.failed {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.result-items {
+    margin-top: 20px;
+}
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    font-size: 18px;
+}
+
+.action-buttons {
+    margin-top: 30px;
+}
+
+.action-buttons .btn {
+    margin: 5px;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 6px;
+}
+
+</style>
+{% endblock %}

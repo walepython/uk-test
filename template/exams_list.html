@@ -1,0 +1,228 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="exams-page">
+    <div class="header-section">
+        <h1>British Citizenship Practice Exams</h1>
+        <p class="subtitle">
+            Practice with real exam questions. Each test simulates the actual Life in the UK test.
+        </p>
+    </div>
+
+    <div class="exams-grid">
+        {% for exam in exams %}
+        <div class="exam-card">
+            <div class="exam-header">
+                <h3>{{ exam.title }}</h3>
+                <span class="exam-number">Exam {{ forloop.counter }}</span>
+            </div>
+            <div class="exam-details">
+                <p>{{ exam.description|default:"Full practice test based on official questions" }}</p>
+                <div class="exam-stats">
+                    <span class="stat">
+                        <i class="fas fa-question-circle"></i>
+                        {{ exam.total_questions }} Questions
+                    </span>
+                    <span class="stat">
+                        <i class="fas fa-clock"></i>
+                        {{ exam.time_limit_minutes }} Minutes
+                    </span>
+                </div>
+            </div>
+            <div class="exam-footer">
+                <a href="{% url 'take_exam' exam.id %}" class="start-exam-btn">
+                    Start Exam
+                </a>
+                {% if user.is_authenticated %}
+                <a href="#" class="resume-btn">
+                    Resume
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="instructions-box">
+        <h3>Exam Instructions</h3>
+        <ul>
+            <li>Each exam has {{ exams.first.total_questions|default:24 }} questions</li>
+            <li>You have {{ exams.first.time_limit_minutes|default:45 }} minutes to complete</li>
+            <li>You can mark questions for review</li>
+            <li>Passing score is 75% (18 out of 24)</li>
+            <li>Your progress is saved automatically</li>
+        </ul>
+    </div>
+</div>
+
+<style>
+.exams-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.header-section {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.header-section h1 {
+    color: #045cc3;
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    color: #666;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.exams-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 30px;
+    margin-bottom: 50px;
+}
+
+.exam-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.exam-card:hover {
+    transform: translateY(-5px);
+}
+
+.exam-header {
+    background: #045cc3;
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.exam-header h3 {
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.exam-number {
+    background: rgba(255,255,255,0.2);
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+}
+
+.exam-details {
+    padding: 20px;
+}
+
+.exam-details p {
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.exam-stats {
+    display: flex;
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.stat i {
+    color: #045cc3;
+}
+
+.exam-footer {
+    padding: 0 20px 20px 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.start-exam-btn, .resume-btn {
+    flex: 1;
+    padding: 12px;
+    text-align: center;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.start-exam-btn {
+    background: #4CAF50;
+    color: white;
+}
+
+.start-exam-btn:hover {
+    background: #388E3C;
+}
+
+.resume-btn {
+    background: #FF9800;
+    color: white;
+}
+
+.resume-btn:hover {
+    background: #F57C00;
+}
+
+.instructions-box {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 25px;
+    border-left: 4px solid #045cc3;
+}
+
+.instructions-box h3 {
+    color: #045cc3;
+    margin-bottom: 15px;
+}
+
+.instructions-box ul {
+    list-style: none;
+    padding: 0;
+}
+
+.instructions-box li {
+    padding: 8px 0;
+    color: #555;
+    display: flex;
+    align-items: center;
+}
+
+.instructions-box li:before {
+    content: "✓";
+    color: #4CAF50;
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+@media (max-width: 768px) {
+    .exams-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .exam-footer {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}

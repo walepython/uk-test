@@ -1,0 +1,121 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Life in the UK Test Web{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <link rel="stylesheet" href="{% static 'home.css' %}">
+    <style>
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .nav-link {
+            font-weight: 500;
+        }
+        .test-card {
+            transition: transform 0.2s;
+            border: 2px solid transparent;
+        }
+        .test-card:hover {
+            transform: translateY(-5px);
+            border-color: #0d6efd;
+        }
+        .progress-bar {
+            transition: width 0.5s ease-in-out;
+        }
+        .choice-label {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .choice-label:hover {
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+   
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                Life in the UK Test Web
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'study_materials' %}">Study Materials</a>
+                    </li>
+                    {% comment %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'test' %}">Tests</a>
+                    </li>
+                    {% endcomment %}
+           
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'life_in_uk_tests' %}">Chapter</a>  <!-- Add this -->
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'exam_list' %}">EXAMS</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'about' %}">About Us</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'contact' %}">Contact Us</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">My account</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+
+    
+    <main>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show m-0 rounded-0">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="footer-content">
+            <div class="copyright">
+                <p>
+                    © Copyright 2025 | Life in the UK Test Web | All Rights Reserved | 
+                    <a href="/">Terms and Conditions</a> | 
+                    <a href="/">Privacy Policy</a>
+                </p>
+            </div>
+            <div class="footer-symbol">
+                <p>f#O.«.?¢:oO®8</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

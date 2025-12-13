@@ -1,0 +1,1221 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'test_interface.css' %}">
+<link rel="stylesheet" href="{% static 'student_material.css' %}">
+
+<div class="container-fluid test-container">
+    <div class="row">
+        <!-- Left Column - Test Content -->
+        <div class="col-lg-8">
+            <!-- Header Section -->
+            <div class="test-header">
+                <h1>{{ test.title }}</h1>
+                <p class="exam-notice">Exams section available. You can access them here.</p>
+                <div class="time-limit">
+                    <strong>Time limit: <span id="time-display">45:00</span></strong>
+                </div>
+            </div>
+
+            <!-- Question Grid -->
+            <div class="question-grid-section">
+                <div class="question-numbers">
+                    {% for question in questions %}
+                    <div class="question-number {% if forloop.counter <= 20 %}first-row{% else %}second-row{% endif %}"
+                         data-question="{{ forloop.counter }}"
+                         id="qnum-{{ forloop.counter }}">
+                        {{ forloop.counter }}
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Status Legend -->
+                <div class="status-legend">
+                    <div class="status-item">
+                        <span class="status-dot correct-dot"></span>
+                        <span>Correct</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-dot review-dot"></span>
+                        <span>Review</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-dot incorrect-dot"></span>
+                        <span>Incorrect</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Question -->
+            <div class="question-section">
+                <div class="question-header">
+                    <h3>Question <span id="current-question-number">1</span> of {{ questions.count }}</h3>
+                </div>
+                
+                <form id="test-form">
+                    {% csrf_token %}
+                    
+                    <!-- Questions Container -->
+                    <div class="questions-container" 
+                         id="questions-container"
+                         data-total-questions="{{ questions.count }}">
+                        {% for question in questions %}
+                        <div class="question-block {% if forloop.counter != 1 %}d-none{% endif %}" 
+                             id="question-{{ forloop.counter }}"
+                             data-question-id="{{ question.id }}"
+                             data-question-type="{{ question.question_type }}">
+                            <div class="question-text">
+                                <p>{{ question.text }}</p>
+                            </div>
+                            
+                            <div class="choices-container">
+                                {% if question.question_type == 'single' %}
+                                    <!-- Single choice (radio buttons) -->
+                                    {% for choice in question.choices.all %}
+                                    {% if choice.text %}
+                                    <label class="choice-label radio-label">
+                                        <input type="radio" 
+                                               name="question_{{ question.id }}" 
+                                               value="{{ choice.id }}"
+                                               class="choice-input choice-radio"
+                                               data-question="{{ question.id }}"
+                                               data-is-correct="{{ choice.is_correct|yesno:'true,false' }}">
+                                        <span class="custom-radio"></span>
+                                        <span class="choice-text">{{ choice.text }}</span>
+                                    </label>
+                                    {% endif %}
+                                    {% endfor %}
+                                
+                                {% elif question.question_type == 'multiple' %}
+                                    <!-- Multiple choice (checkboxes) -->
+                                    <div class="multiple-choices">
+                                        {% for choice in question.choices.all %}
+                                        <label class="choice-label checkbox-label">
+                                            <input type="checkbox" 
+                                                   name="question_{{ question.id }}_{{ forloop.counter }}"
+                                                   value="{{ choice.id }}"
+                                                   class="choice-input choice-checkbox"
+                                                   data-question="{{ question.id }}"
+                                                   data-is-correct="{{ choice.is_correct|yesno:'true,false' }}">
+                                            <span class="custom-checkbox"></span>
+                                            <span class="choice-text">{{ choice.text }}</span>
+                                        </label>
+                                        {% endfor %}
+                                        <div class="multiple-info">
+                                            <small class="text-muted">(Select all that apply)</small>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Answer Feedback Section -->
+                            <div class="answer-feedback d-none" id="feedback-{{ forloop.counter }}">
+                                <div class="feedback-header">
+                                    <h4 id="feedback-title-{{ forloop.counter }}"></h4>
+                                </div>
+                                <div class="feedback-content" id="feedback-content-{{ forloop.counter }}">
+                                    <p>{{ question.explanation|default:"No explanation available." }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="navigation-buttons">
+                        <button type="button" class="btn btn-secondary" id="prev-btn">Previous</button>
+                        <button type="button" class="btn btn-warning" id="review-btn">Review</button>
+                        <button type="button" class="btn btn-primary" id="check-btn">Check</button>
+                        <button type="button" class="btn btn-success" id="next-btn" style="display: none;">Next Question</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Column - Support & Donate -->
+        <div class="col-lg-4">
+            <!-- Support Card -->
+            <div class="support-card">
+                <div class="support-header">
+                    <h3>Support this project</h3>
+                    <div class="heart-icon">♥</div>
+                </div>
+                <div class="support-body">
+                    <p>
+                        Lifeintheuktestweb has been created as a free source to help migrants 
+                        prepare for the British Citizenship test. If you like this project 
+                        and would like to help us maintain it please donate. Thanks and good luck!
+                    </p>
+                    
+                    <!-- Donate Section -->
+                    <div class="donate-section">
+                        <h4>Donate</h4>
+                        <div class="donate-options">
+                            <button class="donate-option">£5</button>
+                            <button class="donate-option">£10</button>
+                            <button class="donate-option">£20</button>
+                            <button class="donate-option">£50</button>
+                            <button class="donate-option custom-amount">Custom</button>
+                        </div>
+                        
+                        <div class="payment-methods">
+                            <p><strong>Payment Methods:</strong></p>
+                            <div class="payment-icons">
+                                <span class="payment-icon">💳</span>
+                                <span class="payment-icon">🏦</span>
+                                <span class="payment-icon">📱</span>
+                                <span class="payment-icon">📊</span>
+                            </div>
+                        </div>
+                        
+                        <button class="donate-button">Donate Now</button>
+                    </div>
+                    
+                    <!-- Quick Test -->
+                    <div class="quick-test-section">
+                        <h4>TEST YOUR KNOWLEDGE</h4>
+                        <p>Try a quick 5-question quiz</p>
+                        <a href="#" class="quick-test-btn">Start Quick Test</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Custom Donation Amount -->
+<div class="modal fade" id="donateModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Make a Donation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="customAmount">Enter Amount (£)</label>
+                    <input type="number" class="form-control" id="customAmount" min="1" step="0.01" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label for="donorName">Your Name (Optional)</label>
+                    <input type="text" class="form-control" id="donorName" placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label for="donorMessage">Message (Optional)</label>
+                    <textarea class="form-control" id="donorMessage" rows="3" placeholder="Thank you for this amazing resource!"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="processDonation">Proceed to Payment</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Donation amount buttons
+    document.querySelectorAll('.donate-option:not(.custom-amount)').forEach(button => {
+        button.addEventListener('click', function() {
+            const amount = this.textContent.replace('£', '');
+            alert(`Thank you for choosing to donate £${amount}! This will help us maintain and improve this free resource.`);
+        });
+    });
+    
+    // Custom amount button
+    document.querySelector('.custom-amount').addEventListener('click', function() {
+        const modal = new bootstrap.Modal(document.getElementById('donateModal'));
+        modal.show();
+    });
+    
+    // Process donation
+    document.getElementById('processDonation').addEventListener('click', function() {
+        const amount = document.getElementById('customAmount').value;
+        if (!amount || parseFloat(amount) <= 0) {
+            alert('Please enter a valid amount.');
+            return;
+        }
+        
+        alert(`Thank you for your generous donation of £${amount}! We truly appreciate your support.`);
+        bootstrap.Modal.getInstance(document.getElementById('donateModal')).hide();
+    });
+    
+    // Quick test button
+    document.querySelector('.quick-test-btn').addEventListener('click', function(e) {
+        e.preventDefault();
+        alert('Starting 5-question quick test... Good luck!');
+        // In production, this would start a quick test
+    });
+});
+
+// Main Test JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    const questionsContainer = document.getElementById('questions-container');
+    const totalQuestions = parseInt(questionsContainer.dataset.totalQuestions) || 0;
+    
+    let currentQuestion = 1;
+    let timeRemaining = 45 * 60;
+    let userAnswers = {};
+    let questionStatus = Array(totalQuestions).fill('unanswered');
+    let questionFeedback = Array(totalQuestions).fill(null);
+
+    // Timer functionality
+    function updateTimer() {
+        if (timeRemaining <= 0) {
+            alert("Time's up! Submitting your test...");
+            submitTest();
+            return;
+        }
+        
+        const minutes = Math.floor(timeRemaining / 60);
+        const seconds = timeRemaining % 60;
+        document.getElementById('time-display').textContent = 
+            `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        timeRemaining--;
+    }
+    
+    const timerInterval = setInterval(updateTimer, 1000);
+
+    // Question navigation
+    function showQuestion(questionNum) {
+        // Hide all questions
+        document.querySelectorAll('.question-block').forEach(q => {
+            q.classList.add('d-none');
+        });
+        
+        // Show selected question
+        const currentQuestionElement = document.getElementById(`question-${questionNum}`);
+        if (currentQuestionElement) {
+            currentQuestionElement.classList.remove('d-none');
+            currentQuestion = questionNum;
+            document.getElementById('current-question-number').textContent = questionNum;
+            
+            // Update question grid
+            updateQuestionGrid();
+            
+            // Update navigation buttons
+            updateNavigationButtons();
+            
+            // Show/hide feedback if available
+            const feedback = questionFeedback[questionNum - 1];
+            if (feedback) {
+                showFeedback(feedback, questionNum);
+            } else {
+                hideFeedback(questionNum);
+            }
+        }
+    }
+
+    function updateQuestionGrid() {
+        document.querySelectorAll('.question-number').forEach((num, index) => {
+            if (!num) return;
+            
+            num.classList.remove('active', 'answered', 'correct', 'incorrect', 'review');
+            
+            if (index + 1 === currentQuestion) {
+                num.classList.add('active');
+            }
+            
+            const status = questionStatus[index];
+            if (status === 'answered') {
+                num.classList.add('answered');
+            } else if (status === 'correct') {
+                num.classList.add('correct');
+            } else if (status === 'incorrect') {
+                num.classList.add('incorrect');
+            } else if (status === 'review') {
+                num.classList.add('review');
+            }
+        });
+    }
+
+    function updateNavigationButtons() {
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const checkBtn = document.getElementById('check-btn');
+        
+        // Previous button
+        if (prevBtn) {
+            prevBtn.style.display = currentQuestion > 1 ? 'inline-block' : 'none';
+        }
+        
+        // Next and Check buttons
+        if (checkBtn) {
+            const isAnswered = questionStatus[currentQuestion - 1] !== 'unanswered';
+            
+            if (currentQuestion === totalQuestions) {
+                checkBtn.textContent = 'Finish Test';
+                checkBtn.style.display = 'inline-block';
+                if (nextBtn) nextBtn.style.display = 'none';
+            } else {
+                checkBtn.textContent = 'Check';
+                checkBtn.style.display = isAnswered ? 'none' : 'inline-block';
+                
+                if (nextBtn) {
+                    nextBtn.style.display = isAnswered ? 'inline-block' : 'none';
+                }
+            }
+        }
+    }
+
+    // Show feedback with safety checks
+    function showFeedback(feedbackData, questionNum) {
+        const feedbackElement = document.getElementById(`feedback-${questionNum}`);
+        if (feedbackElement && feedbackData) {
+            feedbackElement.classList.remove('d-none');
+            
+            const feedbackTitle = document.getElementById(`feedback-title-${questionNum}`);
+            const feedbackContent = document.getElementById(`feedback-content-${questionNum}`);
+            
+            if (feedbackTitle && feedbackContent) {
+                if (feedbackData.isCorrect) {
+                    feedbackElement.classList.remove('incorrect-feedback');
+                    feedbackElement.classList.add('correct-feedback');
+                    feedbackTitle.textContent = 'Correct';
+                    feedbackTitle.style.color = '#28a745';
+                } else {
+                    feedbackElement.classList.remove('correct-feedback');
+                    feedbackElement.classList.add('incorrect-feedback');
+                    feedbackTitle.textContent = 'Incorrect';
+                    feedbackTitle.style.color = '#dc3545';
+                    
+                    // Show correct answer in feedback
+                    if (feedbackData.correctAnswers && feedbackData.correctAnswers.length > 0) {
+                        feedbackContent.innerHTML = `<p><strong>The correct answer is:</strong> ${feedbackData.correctAnswers.join(', ')}</p>
+                                                   <p>${feedbackData.explanation || 'No explanation available.'}</p>`;
+                    }
+                }
+            }
+        }
+    }
+
+    function hideFeedback(questionNum) {
+        const feedbackElement = document.getElementById(`feedback-${questionNum}`);
+        if (feedbackElement) {
+            feedbackElement.classList.add('d-none');
+        }
+    }
+
+    // Question grid click events
+    document.querySelectorAll('.question-number').forEach(num => {
+        if (num) {
+            num.addEventListener('click', function() {
+                const questionNum = parseInt(this.textContent);
+                showQuestion(questionNum);
+            });
+        }
+    });
+
+    // Navigation buttons with safety checks
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const reviewBtn = document.getElementById('review-btn');
+    const checkBtn = document.getElementById('check-btn');
+
+    if (prevBtn) {
+        prevBtn.addEventListener('click', function() {
+            if (currentQuestion > 1) {
+                showQuestion(currentQuestion - 1);
+            }
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', function() {
+            if (currentQuestion < totalQuestions) {
+                showQuestion(currentQuestion + 1);
+            }
+        });
+    }
+
+    if (reviewBtn) {
+        reviewBtn.addEventListener('click', function() {
+            questionStatus[currentQuestion - 1] = 'review';
+            updateQuestionGrid();
+            alert(`Question ${currentQuestion} marked for review.`);
+        });
+    }
+
+    // Check button with improved error handling
+    if (checkBtn) {
+        checkBtn.addEventListener('click', function() {
+            const currentQuestionElement = document.getElementById(`question-${currentQuestion}`);
+            if (!currentQuestionElement) return;
+            
+            const questionType = currentQuestionElement.dataset.questionType;
+            let isCorrect = false;
+            let selectedChoices = [];
+            
+            if (questionType === 'single') {
+                // Handle single choice (radio buttons)
+                const selectedRadio = currentQuestionElement.querySelector('input[type="radio"]:checked');
+                if (!selectedRadio) {
+                    alert('Please select an answer before checking.');
+                    return;
+                }
+                
+                isCorrect = selectedRadio.dataset.isCorrect === 'true';
+                selectedChoices = [selectedRadio.value];
+                userAnswers[currentQuestion] = selectedRadio.value;
+                
+            } else if (questionType === 'multiple') {
+                // Handle multiple choice (checkboxes)
+                const selectedCheckboxes = currentQuestionElement.querySelectorAll('input[type="checkbox"]:checked');
+                if (selectedCheckboxes.length === 0) {
+                    alert('Please select at least one answer before checking.');
+                    return;
+                }
+                
+                // Check if all selected are correct and all correct are selected
+                const allCheckboxes = currentQuestionElement.querySelectorAll('input[type="checkbox"]');
+                let correctCount = 0;
+                let selectedCorrectCount = 0;
+                
+                allCheckboxes.forEach(cb => {
+                    const isChoiceCorrect = cb.dataset.isCorrect === 'true';
+                    const isSelected = cb.checked;
+                    
+                    if (isChoiceCorrect) correctCount++;
+                    if (isSelected && isChoiceCorrect) selectedCorrectCount++;
+                    if (isSelected) selectedChoices.push(cb.value);
+                });
+                
+                // User must select ALL correct answers and NO incorrect answers
+                isCorrect = (selectedCorrectCount === correctCount) && 
+                           (selectedChoices.length === correctCount);
+                
+                userAnswers[currentQuestion] = selectedChoices;
+            }
+            
+            // Save answer
+            saveAnswer(currentQuestionElement.dataset.questionId, selectedChoices, isCorrect).then(data => {
+                questionStatus[currentQuestion - 1] = isCorrect ? 'correct' : 'incorrect';
+                
+                // Show feedback, color code, etc.
+                const correctAnswers = getCorrectAnswers(currentQuestionElement);
+                const explanation = getQuestionExplanation(currentQuestionElement);
+                
+                questionFeedback[currentQuestion - 1] = {
+                    isCorrect,
+                    correctAnswers,
+                    explanation
+                };
+                
+                showFeedback(questionFeedback[currentQuestion - 1], currentQuestion);
+                colorCodeChoices(isCorrect, selectedChoices, currentQuestionElement);
+                updateQuestionGrid();
+                updateNavigationButtons();
+                
+                // If last question, call submitTest automatically when clicked
+                if (currentQuestion === totalQuestions) {
+                    submitTest();
+                }
+            });
+        });
+    }
+
+    // Helper function to get correct answers safely
+    function getCorrectAnswers(questionElement) {
+        try {
+            const questionType = questionElement.dataset.questionType;
+            const correctInputs = questionElement.querySelectorAll('input[data-is-correct="true"]');
+            const correctAnswers = [];
+            
+            correctInputs.forEach(input => {
+                const choiceLabel = input.closest('.choice-label');
+                if (choiceLabel) {
+                    const choiceText = choiceLabel.querySelector('.choice-text');
+                    if (choiceText) {
+                        correctAnswers.push(choiceText.textContent.trim());
+                    }
+                }
+            });
+            
+            return correctAnswers.length > 0 ? correctAnswers : ['Correct answer not available'];
+        } catch (error) {
+            console.error('Error getting correct answers:', error);
+            return ['Error loading correct answers'];
+        }
+    }
+
+    // Helper function to get question explanation safely
+    function getQuestionExplanation(questionElement) {
+        try {
+            const questionId = questionElement.dataset.questionId;
+            // This would ideally come from the server response
+            return 'Explanation will be displayed here.';
+        } catch (error) {
+            console.error('Error getting explanation:', error);
+            return 'No explanation available.';
+        }
+    }
+
+    // Color code choices based on answer
+    function colorCodeChoices(isCorrect, selectedChoices, questionElement) {
+        const choices = questionElement.querySelectorAll('.choice-label');
+        
+        choices.forEach(choice => {
+            const input = choice.querySelector('input');
+            if (!input) return;
+            
+            const isThisCorrect = input.hasAttribute('data-is-correct') && 
+                                 input.dataset.isCorrect === 'true';
+            const isSelected = selectedChoices.includes(input.value);
+            
+            // Reset all classes
+            choice.classList.remove('correct-choice', 'selected-incorrect', 'selected-correct');
+            
+            if (isThisCorrect) {
+                choice.classList.add('correct-choice');
+            }
+            
+            if (isSelected) {
+                if (isThisCorrect) {
+                    choice.classList.add('selected-correct');
+                } else {
+                    choice.classList.add('selected-incorrect');
+                }
+            }
+        });
+    }
+
+    // Save answer to server with better error handling
+    function saveAnswer(questionId, choiceIds, isCorrect) {
+        return fetch('{% url "save_answer" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                question_id: questionId,
+                choice_ids: Array.isArray(choiceIds) ? choiceIds : [choiceIds],
+                is_correct: isCorrect,
+                test_id: '{{ test.id }}'
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Answer saved:', data);
+            return data;
+        })
+        .catch(error => {
+            console.error('Error saving answer:', error);
+            throw error;
+        });
+    }
+
+    // Submit test
+    function submitTest() {
+        if (confirm('Are you sure you want to finish the test?')) {
+            clearInterval(timerInterval);
+
+            // Calculate total answered questions
+            const answeredQuestions = questionStatus.filter(status => 
+                status === 'correct' || status === 'incorrect' || status === 'answered'
+            ).length;
+            
+            const correctCount = questionStatus.filter(status => status === 'correct').length;
+            
+            // Calculate percentage
+            const score = Math.round((correctCount / totalQuestions) * 100);
+            
+            // Get the time display text
+            const timeDisplay = document.getElementById('time-display');
+            const timerText = timeDisplay ? timeDisplay.textContent : "00:00";
+
+            fetch("{% url 'save_test_score' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({
+                    test_id: "{{ test.id }}",
+                    score: score,
+                    correct: correctCount,
+                    wrong: totalQuestions - correctCount,
+                    total: totalQuestions,
+                    time_taken: timerText,
+                    answers: userAnswers
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                } else if (data.error) {
+                    alert("Error: " + data.error);
+                } else {
+                    alert("Unknown server error");
+                }
+            })
+            .catch(error => {
+                console.error("Error submitting test:", error);
+                alert("Problem submitting test.");
+            });
+        }
+    }
+
+    // Initialize
+    showQuestion(1);
+    updateNavigationButtons();
+});
+</script>
+
+<style>
+.test-container {
+    padding: 20px;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+}
+
+.test-header {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.test-header h1 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.exam-notice {
+    color: #6c757d;
+    font-style: italic;
+    margin-bottom: 10px;
+}
+
+.time-limit {
+    font-size: 1.1em;
+    color: #dc3545;
+}
+
+/* Question Grid Styles */
+.question-grid-section {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.question-numbers {
+    display: grid;
+    grid-template-columns: repeat(20, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.question-number {
+    width: 35px;
+    height: 35px;
+    border: 2px solid #dee2e6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.question-number:hover {
+    background-color: #e9ecef;
+}
+
+.question-number.active {
+    border-color: #007bff;
+    background-color: #007bff;
+    color: white;
+}
+
+.question-number.answered {
+    border-color: #17a2b8;
+    background-color: #17a2b8;
+    color: white;
+}
+
+.question-number.correct {
+    border-color: #28a745;
+    background-color: #28a745;
+    color: white;
+}
+
+.question-number.incorrect {
+    border-color: #dc3545;
+    background-color: #dc3545;
+    color: white;
+}
+
+.question-number.review {
+    border-color: #ffc107;
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.second-row {
+    grid-column: span 1;
+}
+
+.status-legend {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.correct-dot {
+    background-color: #28a745;
+}
+
+.review-dot {
+    background-color: #ffc107;
+}
+
+.incorrect-dot {
+    background-color: #dc3545;
+}
+
+/* Question Section */
+.question-section {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.question-header {
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+}
+
+.question-header h3 {
+    color: #2c3e50;
+    margin: 0;
+}
+
+.question-text {
+    font-size: 1.2em;
+    margin-bottom: 25px;
+    color: #2c3e50;
+    line-height: 1.6;
+}
+
+.choices-container {
+    margin-bottom: 30px;
+}
+
+.choice-label {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.choice-label:hover {
+    border-color: #007bff;
+    background-color: #f8f9fa;
+}
+
+.choice-radio {
+    display: none;
+}
+
+.custom-radio {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #6c757d;
+    border-radius: 50%;
+    margin-right: 15px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.choice-radio:checked + .custom-radio {
+    border-color: #007bff;
+    background-color: #007bff;
+}
+
+.choice-radio:checked + .custom-radio::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.choice-text {
+    font-size: 1.1em;
+    color: #495057;
+}
+
+/* Answer Feedback Styles */
+.answer-feedback {
+    margin: 20px 0;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid;
+}
+
+.correct-feedback {
+    background-color: #d4edda;
+    border-color: #28a745;
+}
+
+.incorrect-feedback {
+    background-color: #f8d7da;
+    border-color: #dc3545;
+}
+
+.feedback-header {
+    margin-bottom: 10px;
+}
+
+.feedback-header h4 {
+    margin: 0;
+    font-weight: bold;
+}
+
+.correct-feedback .feedback-header h4 {
+    color: #155724;
+}
+
+.incorrect-feedback .feedback-header h4 {
+    color: #721c24;
+}
+
+.feedback-content {
+    color: #333;
+}
+
+.feedback-content p {
+    margin: 5px 0;
+}
+
+/* Choice coloring */
+.correct-choice {
+    background-color: #d4edda !important;
+    border-color: #28a745 !important;
+}
+
+.selected-incorrect {
+    background-color: #f8d7da !important;
+    border-color: #dc3545 !important;
+}
+
+.correct-choice .choice-text {
+    font-weight: bold;
+    color: #155724;
+}
+
+.selected-incorrect .choice-text {
+    color: #721c24;
+}
+
+.navigation-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.navigation-buttons .btn {
+    min-width: 120px;
+    padding: 10px 20px;
+}
+
+/* Support Section */
+.support-section {
+    position: sticky;
+    top: 20px;
+}
+
+.support-card {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.support-card h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.support-card p {
+    color: #6c757d;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.donate-button {
+    background: #ffc107;
+    color: #212529;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.donate-button:hover {
+    background: #e0a800;
+}
+
+.support-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.support-header h3 {
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.heart-icon {
+    color: #e53e3e;
+    font-size: 1.8rem;
+    animation: heartbeat 1.5s infinite;
+}
+
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .question-numbers {
+        grid-template-columns: repeat(7, 1fr);
+    }
+    
+    .navigation-buttons {
+        flex-direction: column;
+    }
+    
+    .navigation-buttons .btn {
+        width: 100%;
+    }
+}
+
+
+
+.choice-label {
+    display: block;
+    margin-bottom: 10px;
+    padding: 10px 15px;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.choice-label:hover {
+    background-color: #f8f9fa;
+    border-color: #adb5bd;
+}
+
+.choice-input {
+    display: none;
+}
+
+.custom-radio, .custom-checkbox {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #007bff;
+    border-radius: 50%;
+    margin-right: 10px;
+    vertical-align: middle;
+    position: relative;
+}
+
+.custom-checkbox {
+    border-radius: 4px;
+}
+
+.choice-input:checked + .custom-radio::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    background-color: #007bff;
+    border-radius: 50%;
+}
+
+.choice-input:checked + .custom-checkbox::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #007bff;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.choice-text {
+    vertical-align: middle;
+    display: inline-block;
+    width: calc(100% - 40px);
+}
+
+/* Answer feedback styling */
+.answer-feedback {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.correct-feedback {
+    background-color: rgba(40, 167, 69, 0.1);
+    border-left: 4px solid #28a745;
+}
+
+.incorrect-feedback {
+    background-color: rgba(220, 53, 69, 0.1);
+    border-left: 4px solid #dc3545;
+}
+
+/* Choice coloring after checking */
+.correct-choice {
+    background-color: rgba(40, 167, 69, 0.1) !important;
+    border-color: #28a745 !important;
+}
+
+.selected-correct {
+    background-color: rgba(40, 167, 69, 0.2) !important;
+    border-color: #28a745 !important;
+}
+
+.selected-incorrect {
+    background-color: rgba(220, 53, 69, 0.2) !important;
+    border-color: #dc3545 !important;
+}
+
+.multiple-info {
+    margin-top: 15px;
+    font-style: italic;
+    color: #6c757d;
+}
+
+/* Question grid styling */
+.question-number {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    line-height: 40px;
+    text-align: center;
+    margin: 2px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.question-number:hover {
+    background-color: #f8f9fa;
+}
+
+.question-number.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.question-number.correct {
+    background-color: #28a745;
+    color: white;
+    border-color: #28a745;
+}
+
+.question-number.incorrect {
+    background-color: #dc3545;
+    color: white;
+    border-color: #dc3545;
+}
+
+.question-number.review {
+    background-color: #ffc107;
+    color: black;
+    border-color: #ffc107;
+}
+
+.question-number.answered {
+    background-color: #17a2b8;
+    color: white;
+    border-color: #17a2b8;
+}
+
+.status-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.correct-dot {
+    background-color: #28a745;
+}
+
+.incorrect-dot {
+    background-color: #dc3545;
+}
+
+.review-dot {
+    background-color: #ffc107;
+}
+
+</style>
+{% endblock %}

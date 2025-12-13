@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'student_material.css' %}">
+
+<div class="study-materials-container">
+    <!-- Header Section -->
+    <div class="materials-header">
+        <h1>Study Materials</h1>
+        <p class="header-description">
+            Comprehensive resources to help you prepare for the Life in the UK Test
+        </p>
+    </div>
+
+    <!-- Main Content -->
+    <div class="row">
+        <!-- Left Column - Chapters -->
+        <div class="col-lg-8">
+            <div class="materials-card">
+                <div class="card-body">
+                    <p class="source-info">
+                        The contents of the study materials used by Life in the UK Test Web are based on the 
+                        <strong>Life in the United Kingdom: A Guide for New Residents: 3rd edition Handbook</strong> 
+                        used to examine individuals who want to become permanent residents or British citizens.
+                    </p>
+                    
+                    <div class="chapters-section">
+                        <h2 class="section-title">Chapters</h2>
+                        <p class="section-subtitle">The topics of study are divided into the following chapters:</p>
+                        
+                        <div class="chapters-list">
+                            <div class="chapter-item">
+                                <div class="chapter-number">Chapter 1</div>
+                                <div class="chapter-content">
+                                    <h3>The values and Principles of the UK</h3>
+                                    <ul class="chapter-topics">
+                                        <li>The fundamental principles of British life</li>
+                                        <li>Respect for the law and individual rights</li>
+                                        <li>Understanding British values</li>
+                                    </ul>
+                                    <a href="{% url 'chapter1' %}" class="study-btn">Study this Chapter →</a>
+                                </div>
+                            </div>
+                            
+                            <div class="chapter-item">
+                                <div class="chapter-number">Chapter 2</div>
+                                <div class="chapter-content">
+                                    <h3>What is the UK?</h3>
+                                    <ul class="chapter-topics">
+                                        <li>Geography and population</li>
+                                        <li>The four nations</li>
+                                        <li>Major cities and regions</li>
+                                        <li>British overseas territories</li>
+                                    </ul>
+                                    <a href="{% url 'chapter2' %}" class="study-btn">Study this Chapter →</a>
+                                </div>
+                            </div>
+                            
+                            <div class="chapter-item">
+                                <div class="chapter-number">Chapter 3</div>
+                                <div class="chapter-content">
+                                    <h3>A Long and Illustrious History</h3>
+                                    <ul class="chapter-topics">
+                                        <li>Early Britain</li>
+                                        <li>The Middle Ages</li>
+                                        <li>The Tudors and Stuarts</li>
+                                        <li>The 20th century to present</li>
+                                    </ul>
+                                    <a href="{% url 'chapter3' %}" class="study-btn">Study this Chapter →</a>
+                                </div>
+                            </div>
+                            
+                            <div class="chapter-item">
+                                <div class="chapter-number">Chapter 4</div>
+                                <div class="chapter-content">
+                                    <h3>A Modern, Thriving Society</h3>
+                                    <ul class="chapter-topics">
+                                        <li>The UK today</li>
+                                        <li>Religion and customs</li>
+                                        <li>Sports and culture</li>
+                                        <li>Employment and education</li>
+                                    </ul>
+                                    <a href="{% url 'chapter4' %}" class="study-btn">Study this Chapter →</a>
+                                </div>
+                            </div>
+                            
+                            <div class="chapter-item">
+                                <div class="chapter-number">Chapter 5</div>
+                                <div class="chapter-content">
+                                    <h3>The UK Government, the Law and Your Role</h3>
+                                    <ul class="chapter-topics">
+                                        <li>The British constitution</li>
+                                        <li>Government and elections</li>
+                                        <li>The justice system</li>
+                                        <li>Your role in the community</li>
+                                    </ul>
+                                    <a href="{% url 'chapter5' %}" class="study-btn">Study this Chapter →</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="test-section">
+                        <h2 class="section-title">Ready to Test Your Knowledge?</h2>
+                        <p>Practice with our official mock tests based on the official study materials.</p>
+                        <a href="{% url 'test' %}" class="test-btn">Take Practice Tests →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Column - Support & Donate -->
+        <div class="col-lg-4">
+            <!-- Support Card -->
+            <div class="support-card">
+                <div class="support-header">
+                    <h3>Support this project</h3>
+                    <div class="heart-icon">♥</div>
+                </div>
+                <div class="support-body">
+                    <p>
+                        Lifeintheuktestweb has been created as a free source to help migrants 
+                        prepare for the British Citizenship test. If you like this project 
+                        and would like to help us maintain it please donate. Thanks and good luck!
+                    </p>
+                    
+                    <!-- Donate Section -->
+                    <div class="donate-section">
+                        <h4>Donate</h4>
+                        <div class="donate-options">
+                            <button class="donate-option">£5</button>
+                            <button class="donate-option">£10</button>
+                            <button class="donate-option">£20</button>
+                            <button class="donate-option">£50</button>
+                            <button class="donate-option custom-amount">Custom</button>
+                        </div>
+                        
+                        <div class="payment-methods">
+                            <p><strong>Payment Methods:</strong></p>
+                            <div class="payment-icons">
+                                <span class="payment-icon">💳</span>
+                                <span class="payment-icon">🏦</span>
+                                <span class="payment-icon">📱</span>
+                                <span class="payment-icon">📊</span>
+                            </div>
+                        </div>
+                        
+                        <button class="donate-button">Donate Now</button>
+                    </div>
+                    
+                    <!-- Quick Test -->
+                    <div class="quick-test-section">
+                        <h4>TEST YOUR KNOWLEDGE</h4>
+                        <p>Try a quick 5-question quiz</p>
+                        <a href="#" class="quick-test-btn">Start Quick Test</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional Resources -->
+            <div class="resources-card">
+                <h3>Additional Resources</h3>
+                <ul class="resources-list">
+                    <li><a href="#">Official Handbook (PDF)</a></li>
+                    <li><a href="#">Audio Guides</a></li>
+                    <li><a href="#">Practice Question Bank</a></li>
+                    <li><a href="#">Study Schedule</a></li>
+                    <li><a href="#">Test Day Tips</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Custom Donation Amount -->
+<div class="modal fade" id="donateModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Make a Donation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="customAmount">Enter Amount (£)</label>
+                    <input type="number" class="form-control" id="customAmount" min="1" step="0.01" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label for="donorName">Your Name (Optional)</label>
+                    <input type="text" class="form-control" id="donorName" placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label for="donorMessage">Message (Optional)</label>
+                    <textarea class="form-control" id="donorMessage" rows="3" placeholder="Thank you for this amazing resource!"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="processDonation">Proceed to Payment</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Donation amount buttons
+    document.querySelectorAll('.donate-option:not(.custom-amount)').forEach(button => {
+        button.addEventListener('click', function() {
+            const amount = this.textContent.replace('£', '');
+            alert(`Thank you for choosing to donate £${amount}! This will help us maintain and improve this free resource.`);
+        });
+    });
+    
+    // Custom amount button
+    document.querySelector('.custom-amount').addEventListener('click', function() {
+        const modal = new bootstrap.Modal(document.getElementById('donateModal'));
+        modal.show();
+    });
+    
+    // Process donation
+    document.getElementById('processDonation').addEventListener('click', function() {
+        const amount = document.getElementById('customAmount').value;
+        if (!amount || parseFloat(amount) <= 0) {
+            alert('Please enter a valid amount.');
+            return;
+        }
+        
+        alert(`Thank you for your generous donation of £${amount}! We truly appreciate your support.`);
+        bootstrap.Modal.getInstance(document.getElementById('donateModal')).hide();
+    });
+    
+    // Study buttons
+    document.querySelectorAll('.study-btn').forEach(button => {
+    button.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        const url = this.href;  // Get Django URL
+        const chapter = this.closest('.chapter-item').querySelector('h3').textContent;
+
+        
+        window.location.href = url;  // Redirect AFTER alert
+    });
+    });
+
+    
+    // Quick test button
+    document.querySelector('.quick-test-btn').addEventListener('click', function(e) {
+        e.preventDefault();
+        alert('Starting 5-question quick test... Good luck!');
+        // In production, this would start a quick test
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,40 @@
+.tests-layout {
+    display: flex;
+    gap: 40px;
+  }
+  
+  .tests-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  
+  .test-card {
+    border: 1px solid #0b5ed7;
+    padding: 7px 20px 0px 20px;
+    height: 150px;
+    border-radius: 10px;
+    background: #fff;
+  }
+  .takeIcon{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+  }
+  
+  .start-btn {
+    float: right;
+    background: white;
+    color: #0b5ed7;
+    padding: 4px 8px;
+    font-weight:700;
+    border: 3px solid #0b5ed7;
+    border-radius: 50%;
+    text-decoration: none;
+  }
+  
+  .support-box {
+    width: 250px;
+  }
+  

@@ -1,0 +1,460 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'chapter1.css' %}">
+
+<div class="contact-wrapper">
+
+    <!-- LEFT SECTION (FORM) -->
+    <div class="left-section">
+        <h1>Contact Us</h1>
+
+        {% if error %}
+            <p style="color:red;">{{ error }}</p>
+        {% endif %}
+
+        {% if success %}
+            <p style="color:green; font-weight:bold;">Your message has been sent successfully!</p>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <label>Your Name (required)</label>
+            <input type="text" name="name" required>
+
+            <label>Your Email (required)</label>
+            <input type="email" name="email" required>
+
+            <label>Subject</label>
+            <input type="text" name="subject" required>
+
+            <label>Your Message</label>
+            <textarea name="message" rows="8" required></textarea>
+
+            <div class="terms">
+                <input type="checkbox" id="terms" name="terms" required>
+                <label for="terms">I agree to <a href="#">terms and conditions</a>.</label>
+            </div>
+
+            <button type="submit" class="send-btn">Send</button>
+            <input type="hidden" id="g-recaptcha-response" name="g-recaptcha-response">
+
+            <script src="https://www.google.com/recaptcha/api.js?render={{ recaptcha_site_key }}"></script>
+            <script>
+            grecaptcha.ready(function() {
+                grecaptcha.execute('{{ recaptcha_site_key }}', {action: 'submit'}).then(function(token) {
+                    document.getElementById('g-recaptcha-response').value = token;
+                });
+            });
+            </script>
+
+        </form>
+    </div>
+
+    <!-- RIGHT SECTION (SUPPORT BOX) -->
+    <div class="sidebar-column1">
+        <!-- Sidebar Column -->
+        <aside class="sidebar-column">
+            <!-- Support Card -->
+            <div class="support-card">
+                <div class="support-header">
+                    <h3>Support this project</h3>
+                    <div class="heart-icon">♥</div>
+                </div>
+                <div class="support-body">
+                    <p>
+                        Lifeintheuktestweb has been created as a free source to help migrants 
+                        prepare for the British Citizenship test. If you like this project 
+                        and would like to help us maintain it please donate.
+                    </p>
+                    
+                    <div class="thank-you">
+                        <strong>Thanks and good luck!</strong>
+                    </div>
+                    
+                    <!-- Donate Section -->
+                    <div class="donate-section">
+                        <h4>Donate</h4>
+                        <div class="donate-options">
+                            <button class="donate-option">£5</button>
+                            <button class="donate-option">£10</button>
+                            <button class="donate-option">£20</button>
+                            <button class="donate-option">£50</button>
+                            <button class="donate-button custom-amount">Donate Now</button>
+                        </div> 
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+     </div>
+
+
+</div>
+{% if success %}
+<div class="popup-overlay" id="popup">
+    <div class="popup-box">
+        <h2>Message Sent ✔</h2>
+        <p>Your message has been delivered successfully.</p>
+        <button onclick="document.getElementById('popup').style.display='none'">OK</button>
+    </div>
+</div>
+{% endif %}
+
+<!-- Modal for Custom Donation Amount -->
+<div class="modal fade" id="donateModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Make a Donation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="customAmount">Enter Amount (£)</label>
+                    <input type="number" class="form-control" id="customAmount" min="1" step="0.01" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label for="donorName">Your Name (Optional)</label>
+                    <input type="text" class="form-control" id="donorName" placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label for="donorMessage">Message (Optional)</label>
+                    <textarea class="form-control" id="donorMessage" rows="3" placeholder="Thank you for this amazing resource!"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="processDonation">Proceed to Payment</button>
+            </div>
+        </div>
+    </div>
+</div>
+    
+    {% endblock %}
+    {% block extra_js %}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    // Donation functionality
+    document.querySelectorAll('.donate-option:not(.custom-amount)').forEach(button => {
+        button.addEventListener('click', function() {
+            const amount = this.textContent.replace('£', '');
+            alert(`Thank you for choosing to donate £${amount}! This will help us maintain and improve this free resource.`);
+        });
+    });
+    
+    document.querySelector('.custom-amount').addEventListener('click', function() {
+        const modal = new bootstrap.Modal(document.getElementById('donateModal'));
+        modal.show();
+    });
+    
+    document.getElementById('processDonation').addEventListener('click', function() {
+        const amount = document.getElementById('customAmount').value;
+        if (!amount || parseFloat(amount) <= 0) {
+            alert('Please enter a valid amount.');
+            return;
+        }
+        alert(`Thank you for your generous donation of £${amount}! We truly appreciate your support.`);
+        bootstrap.Modal.getInstance(document.getElementById('donateModal')).hide();
+    });
+    
+    // Mark chapter as complete
+    const markCompleteBtn = document.getElementById('markCompleteBtn');
+    const completionStatus = document.getElementById('completionStatus');
+    
+    markCompleteBtn.addEventListener('click', function() {
+        const checkboxes = document.querySelectorAll('.checkpoint input[type="checkbox"]');
+        const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+        
+        if (allChecked) {
+            completionStatus.textContent = 'Completed!';
+            completionStatus.className = 'completion-status completed';
+            markCompleteBtn.textContent = '✓ Chapter Completed';
+            markCompleteBtn.className = 'btn btn-success';
+            alert('Congratulations! You have completed Chapter 1.');
+        } else {
+            alert('Please check all the understanding checkpoints before marking as complete.');
+        }
+    });
+    
+    // Update progress when checkboxes are checked
+    document.querySelectorAll('.checkpoint input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.checkpoint input[type="checkbox"]');
+            const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+            const total = checkboxes.length;
+            const progress = Math.round((checkedCount / total) * 100);
+            
+            // Update progress in header
+            const progressElement = document.querySelector('.chapter-meta .progress strong');
+            if (progressElement) {
+                progressElement.textContent = `${progress}%`;
+            }
+        });
+    });
+    
+    // Quiz button
+    document.querySelector('.start-quiz-btn').addEventListener('click', function(e) {
+        e.preventDefault();
+        alert('Starting Chapter 1 quiz. Good luck!');
+        // In production, this would start the quiz
+    });
+    });
+</script>
+
+<style>
+    .sidebar-column1 {
+    position: sticky;
+    top: 20px; 
+    display: flex;
+    width:50vw;
+    flex-direction: column;
+    gap: 25px;
+    }
+    
+    
+    
+    
+    
+    
+    h2, h3, h4 {
+    color: #0b0c0c;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #1d70b8;
+    }
+    
+    h2 {
+    font-size: 24px;
+    }
+    
+    h3 {
+    font-size: 20px;
+    border-bottom-width: 1px;
+    }
+    
+    h4 {
+    font-size: 18px;
+    border-bottom: 1px dashed #1d70b8;
+    }
+    
+    /* Facts Card */
+    .facts-card {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-top: 25px;
+    }
+    
+    .facts-card h4 {
+    color: #2d3748;
+    margin-bottom: 20px;
+    text-align: center;
+    }
+    
+    .fact-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 0;
+    border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .fact-item:last-child {
+    border-bottom: none;
+    }
+    
+    .fact-icon {
+    font-size: 1.5rem;
+    width: 40px;
+    text-align: center;
+    }
+    
+    .fact-content {
+    flex-grow: 1;
+    }
+    
+    .fact-content strong {
+    display: block;
+    color: #2d3748;
+    font-size: 0.9rem;
+    }
+    
+    .fact-content span {
+    color: #4a5568;
+    font-size: 0.9rem;
+    }
+    
+    .facts-card {
+    border-top: 4px solid #9f7aea;
+    }
+    .support-card {
+    border-top: 4px solid #667eea;
+    }
+    
+    .test-card {
+    border-top: 4px solid #48bb78;
+    text-align: center;
+    }
+    
+    .navigation-card {
+    border-top: 4px solid #e53e3e;
+    }
+    
+    .download-card {
+    border-top: 4px solid #ed8936;
+    }
+
+    
+
+
+.contact-wrapper {
+    display: flex;
+    justify-content: space-between;
+    padding: 40px;
+    gap: 40px;
+}
+
+.left-section {
+    width: 75vw;
+}
+
+.left-section h1 {
+    margin-bottom: 20px;
+}
+
+.left-section label {
+    display: flex;
+    margin: 15px 0 5px;
+    font-weight: bold;
+}
+
+.left-section input,
+.left-section textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.terms {
+   display:flex;
+   gap:7px;
+   align-items:center;
+   margin-top:30px;
+   margin-bottom:20px;
+}
+.terms label{
+    margin:0px;
+}
+#terms{
+    width: 30px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+
+.send-btn {
+    background: #0066cc;
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* RIGHT BOX */
+.right-section {
+    width: 30%;
+    background: #f7f7f7;
+    padding: 25px;
+    border-radius: 8px;
+}
+
+.right-section h2 {
+    margin-bottom: 15px;
+}
+
+.thanks {
+    color: #0073ff;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.donate-btn {
+    background: gold;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 30px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.popup-box {
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    width: 350px;
+    text-align: center;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {opacity: 0; transform: scale(0.9);}
+    to {opacity: 1; transform: scale(1);}
+}
+
+.popup-box button {
+    margin-top: 15px;
+    padding: 8px 20px;
+    background: #0078ff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+    .contact-wrapper {
+        flex-direction: column;
+        gap: 20px;
+    }
+    .sidebar-column1{
+        width:100%;
+    }
+
+    .left-section,
+    .right-section {
+        width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+    .send-btn,
+    .donate-btn {
+        width: 100%;
+    }
+}
+
+
+</style>
+
+{% endblock %}

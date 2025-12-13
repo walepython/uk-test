@@ -1,0 +1,545 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Life in the UK Test - Practice for Free{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'home.css' %}">
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #ffffff;
+    }
+
+    /* Banner */
+    .top-banner {
+        display: flex;
+        flex-direction: column;
+        background: #2d9cdb;
+        color: white;
+        padding: 25px 40px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 20px;
+        letter-spacing: 1px;
+        margin: 30px 80px;
+        border-radius: 8px;
+        position: relative;
+        opacity: 1; /* Ensure it's visible */
+        transition: opacity 0.3s ease, transform 0.3s ease; 
+    }
+    .top-banner.hidden {
+        opacity: 0;
+        transform: translateY(-20px);
+        height: 0;
+        margin: 0 80px;
+        padding: 0 40px;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+        z-index: 10
+    }
+    .close-btn:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: scale(1.1);
+    }
+
+    .top-banner .i {
+        background-color: #fff;
+        width: 40px;
+        height: 40px;
+        margin: 0 auto 15px auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #2d9cdb;
+        border-radius: 50%;
+        font-weight: 800;
+        font-size: 20px;
+    }
+
+    /* Hero section */
+    .hero-container {
+        width: 80%;
+        margin: 60px auto;
+        display: flex;
+        gap: 30px;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .hero-text {
+        flex: 1;
+        padding-right: 40px;
+    }
+
+    .hero-text2 {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .hero-text h1 {
+        font-size: 48px;
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    .hero-text p {
+        text-align: center;
+        font-size: 18px;
+        line-height: 30px;
+        margin-top: 15px;
+    }
+
+    .hero-button {
+        text-align: center;
+        margin-top: 40px;
+        width: 100%;
+    }
+
+    .hero-button a {
+        background: #2d9cdb;
+        padding: 18px 50px;
+        font-size: 20px;
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+        border-radius: 50px;
+        display: inline-block;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .hero-button a:hover {
+        background: #1a7bb9;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .hero-image img {
+        width: 420px;
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+    }
+
+    /* Four icons */
+    .features-section {
+        width: 90%;
+        margin: 60px auto;
+        text-align: center;
+        padding-top: 40px;
+        border-top: 2px solid #ccc;
+    }
+
+    .features-grid {
+        display: flex;
+        justify-content: space-between;
+        padding-top: 40px;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .feature-item {
+        width: 23%;
+        margin-bottom: 30px;
+    }
+
+    a.feature-item1 {
+        display: inline-block;
+        width: 100%;
+        transition: transform 0.3s ease;
+        margin-bottom: 15px;
+        text-decoration: none;
+        color: black;
+    }
+
+    a.feature-item1:hover {
+        transform: scale(1.05);
+    }
+
+    .feature-item:hover h3 {
+        color: #2d9cdb;
+    }
+
+    .feature-item img {
+        width: 230px;
+        height: 230px;
+        object-fit: contain;
+        max-width: 100%;
+    }
+
+    .feature-item h3 {
+        margin-top: 20px;
+        font-size: 22px;
+        font-weight: bold;
+        transition: color 0.3s ease;
+    }
+
+    .feature-item p {
+        font-size: 16px;
+        line-height: 26px;
+        margin-top: 10px;
+        color: #444;
+    }
+
+    /* =================================== */
+    /* MEDIA QUERIES FOR RESPONSIVE DESIGN */
+    /* =================================== */
+
+    /* For tablets and small laptops (max-width: 1024px) */
+    @media screen and (max-width: 1024px) {
+        .top-banner {
+            margin: 20px 40px;
+            padding: 20px 30px;
+            font-size: 18px;
+        }
+
+        .hero-container {
+            width: 90%;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .hero-text {
+            padding-right: 0;
+            text-align: center;
+        }
+
+        .hero-text h1 {
+            font-size: 40px;
+        }
+
+        .hero-button a {
+            padding: 16px 40px;
+            font-size: 18px;
+        }
+
+        .feature-item {
+            width: 48%; /* 2 items per row */
+        }
+
+        .feature-item img {
+            width: 200px;
+            height: 200px;
+        }
+    }
+
+    /* For tablets (max-width: 768px) */
+    @media screen and (max-width: 768px) {
+        .top-banner {
+            margin: 15px 20px;
+            padding: 15px 20px;
+            font-size: 16px;
+        }
+
+        .top-banner .i {
+            width: 35px;
+            height: 35px;
+            font-size: 18px;
+        }
+        .close-btn {
+            font-size: 24px;
+            width: 25px;
+            height: 25px;
+        }
+
+        .hero-text h1 {
+            font-size: 32px;
+        }
+
+        .hero-text p {
+            font-size: 16px;
+            line-height: 26px;
+        }
+
+        .hero-image img {
+            width: 350px;
+        }
+
+        .features-grid {
+            gap: 15px;
+        }
+
+        .feature-item {
+            width: 48%;
+        }
+
+        .feature-item img {
+            width: 180px;
+            height: 180px;
+        }
+
+        .feature-item h3 {
+            font-size: 20px;
+        }
+
+        .feature-item p {
+            font-size: 15px;
+            line-height: 24px;
+        }
+    }
+
+    /* For mobile phones (max-width: 480px) */
+    @media screen and (max-width: 480px) {
+        .top-banner {
+            margin: 10px 15px;
+            padding: 15px;
+            font-size: 14px;
+        }
+        .close-btn {
+            top: 8px;
+            right: 8px;
+            font-size: 20px;
+        }
+
+        .hero-container {
+            width: 95%;
+            margin: 30px auto;
+        }
+
+        .hero-text h1 {
+            font-size: 28px;
+        }
+
+        .hero-text p {
+            font-size: 15px;
+            line-height: 24px;
+        }
+
+        .hero-image img {
+            width: 280px;
+        }
+
+        .hero-button a {
+            padding: 14px 30px;
+            font-size: 16px;
+            width: 90%;
+            max-width: 300px;
+        }
+
+        .features-section {
+            width: 95%;
+            margin: 40px auto;
+        }
+
+        .features-grid {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .feature-item {
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .feature-item img {
+            width: 200px;
+            height: 200px;
+        }
+    }
+
+    /* For very small mobile phones (max-width: 320px) */
+    @media screen and (max-width: 320px) {
+        .hero-text h1 {
+            font-size: 24px;
+        }
+
+        .hero-image img {
+            width: 250px;
+        }
+
+        .hero-button a {
+            padding: 12px 25px;
+            font-size: 14px;
+        }
+
+        .feature-item img {
+            width: 180px;
+            height: 180px;
+        }
+
+        .feature-item h3 {
+            font-size: 18px;
+        }
+
+        .feature-item p {
+            font-size: 14px;
+        }
+    }
+
+    /* For landscape mode on mobile devices */
+    @media screen and (max-height: 600px) and (orientation: landscape) {
+        .hero-container {
+            margin: 30px auto;
+        }
+
+        .top-banner {
+            margin: 15px 20px;
+            padding: 15px;
+        }
+
+        .hero-text h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+    }
+
+    /* For high-resolution displays (2x DPI) */
+    @media screen and (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+        .hero-image img {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+    }
+</style>
+
+<!-- TOP BANNER -->
+<div class="top-banner" id="notificationBanner">
+    <button class="close-btn" id="closeBannerBtn" aria-label="Close notification">×</button>
+    <p class="i">i</p> 
+    <p>WE HAVE A SECTION WITH EXAM QUESTIONS PROVIDED BY USERS. THANK YOU TO ALL THE PEOPLE WHO HAVE CONTRIBUTED WITH THEIR INPUT.</p>
+</div>
+
+<!-- HERO SECTION -->
+<div class="hero-container">
+    <div class="hero-text">
+        <h1>Life in the UK Test</h1>
+
+        <p><strong>Get Ready to pass your Life in the UK test for FREE!</strong></p>
+
+        <p>
+            This website is designed to help you <strong>PASS the Life in the UK Test easily</strong>.
+            We have carefully selected all our questions from the
+            <strong>Life in the UK: A Guide for New Residents: 3rd edition Handbook</strong>
+            used for the <strong>2025 Life in the UK exam</strong>. And it is completely
+            <span style="color:red; font-weight: bold;">FREE!</span>
+        </p>
+    </div>
+
+    <div class="hero-text2">
+        <div class="hero-image">
+            <img src="{% static 'images/life-in-the-uk-test-practice.jpg' %}" alt="UK Flag">
+        </div>
+        <div class="hero-button">
+            <a href="#">START PRACTISING NOW</a>
+        </div>
+    </div>
+</div>
+
+<!-- FEATURES ICONS -->
+<div class="features-section">
+
+    <div class="features-grid">
+
+        <div class="feature-item">
+            <a class="feature-item1" href="{% url 'faqs' %}">
+                <img src="{% static 'images/life-in-the-uk-test-faq.png' %}" alt="FAQs">
+                <h3>FAQs</h3>
+            </a>
+            
+            <p>
+                Get ready to pass the Life in the UK Test. Practise for the real exam Here!
+            </p>
+        </div>
+
+        <div class="feature-item">
+            <a class="feature-item1" href="{% url 'study_materials' %}">
+                <img src="{% static 'images/life-in-the-uk-test-handbook.png' %}" alt="Study Materials">
+            <h3>Study Materials</h3>
+            </a>
+            <p>
+                Get the Life in the United Kingdom: A Guide for New Residents 3rd Edition Handbook.
+            </p>
+        </div>
+
+        <div class="feature-item">
+            <a class="feature-item1" href="{% url 'test_content' %}">
+                <img src="{% static 'images/life-in-the-uk-test-centres.png' %}" alt="Test Centres">
+            <h3>Test Centres</h3>
+            </a>
+            <p>
+                There are over 20 test centres available. Find the closest test centre to your location.
+            </p>
+        </div>
+
+        <div class="feature-item">
+            <a class="feature-item1" href="{% url 'contact' %}">
+                <img src="{% static 'images/book-life-in-the-uk-test.png' %}" alt="Contact Us">
+            <h3>Contact Us</h3>
+            </a>
+            <p>
+                Do not hesitate to contact us for any questions or suggestions.
+            </p>
+        </div>
+
+    </div>
+
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const banner = document.getElementById('notificationBanner');
+        const closeBtn = document.getElementById('closeBannerBtn');
+        
+        // REMOVED localStorage check - banner always shows on page load
+        
+        // Close button click handler - SIMPLE VERSION
+        closeBtn.addEventListener('click', function() {
+            // Add the hidden class to trigger CSS animation
+            banner.classList.add('hidden');
+        });
+        
+        // Optional: Smooth animation with timeout
+        closeBtn.addEventListener('click', function() {
+            // First fade out
+            banner.style.opacity = '0';
+            banner.style.transform = 'translateY(-20px)';
+            
+            // After animation completes, hide completely
+            setTimeout(function() {
+                banner.classList.add('hidden');
+            }, 300); // Match this with CSS transition time
+        });
+        
+        // Optional: Add keyboard support for accessibility
+        closeBtn.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                closeBtn.click();
+            }
+        });
+        
+        // Optional: Close with ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !banner.classList.contains('hidden')) {
+                closeBtn.click();
+            }
+        });
+    });
+</script>
+{% endblock %}
