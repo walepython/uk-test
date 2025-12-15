@@ -619,7 +619,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function submitTest() {
         if (confirm('Are you sure you want to finish the test?')) {
             clearInterval(timerInterval);
-
+            const csrftoken = getCookie('csrftoken');
             // Calculate total answered questions
             const answeredQuestions = questionStatus.filter(status => 
                 status === 'correct' || status === 'incorrect' || status === 'answered'
@@ -635,7 +635,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const timerText = timeDisplay ? timeDisplay.textContent : "00:00";
 
             fetch("{% url 'save_test_score' %}", {
-                const csrftoken = getCookie('csrftoken');
+                
                 method: "POST",
                 headers: {
                    "Content-Type": "application/json",
