@@ -93,7 +93,7 @@ def take_test(request, test_id):
 
 
 @require_POST
-@login_required
+# @login_required
 def save_answer(request):
     try:
         data = json.loads(request.body)
