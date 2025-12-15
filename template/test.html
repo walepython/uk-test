@@ -217,462 +217,481 @@
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Donation amount buttons
-    document.querySelectorAll('.donate-option:not(.custom-amount)').forEach(button => {
-        button.addEventListener('click', function() {
-            const amount = this.textContent.replace('£', '');
-            alert(`Thank you for choosing to donate £${amount}! This will help us maintain and improve this free resource.`);
+    document.addEventListener('DOMContentLoaded', function() {
+        // Donation amount buttons
+        document.querySelectorAll('.donate-option:not(.custom-amount)').forEach(button => {
+            button.addEventListener('click', function() {
+                const amount = this.textContent.replace('£', '');
+                alert(`Thank you for choosing to donate £${amount}! This will help us maintain and improve this free resource.`);
+            });
         });
-    });
-    
-    // Custom amount button
-    document.querySelector('.custom-amount').addEventListener('click', function() {
-        const modal = new bootstrap.Modal(document.getElementById('donateModal'));
-        modal.show();
-    });
-    
-    // Process donation
-    document.getElementById('processDonation').addEventListener('click', function() {
-        const amount = document.getElementById('customAmount').value;
-        if (!amount || parseFloat(amount) <= 0) {
-            alert('Please enter a valid amount.');
-            return;
+        
+        // Custom amount button
+        const customAmountBtn = document.querySelector('.custom-amount');
+        if (customAmountBtn) {
+            customAmountBtn.addEventListener('click', function() {
+                const modal = new bootstrap.Modal(document.getElementById('donateModal'));
+                modal.show();
+            });
         }
         
-        alert(`Thank you for your generous donation of £${amount}! We truly appreciate your support.`);
-        bootstrap.Modal.getInstance(document.getElementById('donateModal')).hide();
-    });
+        // Process donation
+        const processDonationBtn = document.getElementById('processDonation');
+        if (processDonationBtn) {
+            processDonationBtn.addEventListener('click', function() {
+                const amountInput = document.getElementById('customAmount');
+                if (!amountInput) return;
+                
+                const amount = amountInput.value;
+                if (!amount || parseFloat(amount) <= 0) {
+                    alert('Please enter a valid amount.');
+                    return;
+                }
+                
+                alert(`Thank you for your generous donation of £${amount}! We truly appreciate your support.`);
+                const modal = bootstrap.Modal.getInstance(document.getElementById('donateModal'));
+                if (modal) modal.hide();
+            });
+        }
+        
+        // Quick test button
+        const quickTestBtn = document.querySelector('.quick-test-btn');
+        if (quickTestBtn) {
+            quickTestBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('Starting 5-question quick test... Good luck!');
+                // In production, this would start a quick test
+            });
+        }
     
-    // Quick test button
-    document.querySelector('.quick-test-btn').addEventListener('click', function(e) {
-        e.preventDefault();
-        alert('Starting 5-question quick test... Good luck!');
-        // In production, this would start a quick test
-    });
-});
-
-// Main Test JavaScript
-document.addEventListener('DOMContentLoaded', function() {
-    const questionsContainer = document.getElementById('questions-container');
-    const totalQuestions = parseInt(questionsContainer.dataset.totalQuestions) || 0;
+        // Main Test JavaScript
+        const questionsContainer = document.getElementById('questions-container');
+        if (!questionsContainer) return;
+        
+        const totalQuestions = parseInt(questionsContainer.dataset.totalQuestions) || 0;
+        if (totalQuestions === 0) return;
+        
+        let currentQuestion = 1;
+        let timeRemaining = 45 * 60;
+        let userAnswers = {};
+        let questionStatus = Array(totalQuestions).fill('unanswered');
+        let questionFeedback = Array(totalQuestions).fill(null);
     
-    let currentQuestion = 1;
-    let timeRemaining = 45 * 60;
-    let userAnswers = {};
-    let questionStatus = Array(totalQuestions).fill('unanswered');
-    let questionFeedback = Array(totalQuestions).fill(null);
-
-    // Timer functionality
-    function updateTimer() {
-        if (timeRemaining <= 0) {
-            alert("Time's up! Submitting your test...");
+        // Timer functionality
+        function updateTimer() {
+            if (timeRemaining <= 0) {
+                alert("Time's up! Submitting your test...");
+                submitTest();
+                return;
+            }
+            
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            const timeDisplay = document.getElementById('time-display');
+            if (timeDisplay) {
+                timeDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+            timeRemaining--;
+        }
+        
+        const timerInterval = setInterval(updateTimer, 1000);
+    
+        // Question navigation
+        function showQuestion(questionNum) {
+            // Validate question number
+            if (questionNum < 1 || questionNum > totalQuestions) return;
+            
+            // Hide all questions
+            document.querySelectorAll('.question-block').forEach(q => {
+                q.classList.add('d-none');
+            });
+            
+            // Show selected question
+            const currentQuestionElement = document.getElementById(`question-${questionNum}`);
+            if (currentQuestionElement) {
+                currentQuestionElement.classList.remove('d-none');
+                currentQuestion = questionNum;
+                
+                const currentQuestionNumber = document.getElementById('current-question-number');
+                if (currentQuestionNumber) {
+                    currentQuestionNumber.textContent = questionNum;
+                }
+                
+                // Update question grid
+                updateQuestionGrid();
+                
+                // Update navigation buttons
+                updateNavigationButtons();
+                
+                // Show/hide feedback if available
+                const feedback = questionFeedback[questionNum - 1];
+                if (feedback) {
+                    showFeedback(feedback, questionNum);
+                } else {
+                    hideFeedback(questionNum);
+                }
+            }
+        }
+    
+        function updateQuestionGrid() {
+            document.querySelectorAll('.question-number').forEach((num, index) => {
+                if (!num) return;
+                
+                // Remove all status classes
+                ['active', 'answered', 'correct', 'incorrect', 'review'].forEach(cls => {
+                    num.classList.remove(cls);
+                });
+                
+                // Add current status
+                if (index + 1 === currentQuestion) {
+                    num.classList.add('active');
+                }
+                
+                const status = questionStatus[index];
+                if (status && status !== 'unanswered') {
+                    num.classList.add(status);
+                }
+            });
+        }
+    
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const checkBtn = document.getElementById('check-btn');
+            
+            // Previous button
+            if (prevBtn) {
+                prevBtn.style.display = currentQuestion > 1 ? 'inline-block' : 'none';
+            }
+            
+            // Next and Check buttons
+            if (checkBtn) {
+                const isAnswered = questionStatus[currentQuestion - 1] !== 'unanswered';
+                
+                if (currentQuestion === totalQuestions) {
+                    // Last question and answered - show Finish Test button
+                    checkBtn.textContent = 'Finish Test';
+                    checkBtn.style.display = 'inline-block';
+                    if (nextBtn) nextBtn.style.display = 'none';
+                } else if (currentQuestion === totalQuestions && !isAnswered) {
+                // Last question but not answered - show Check button
+                checkBtn.textContent = 'Check';
+                checkBtn.style.display = 'inline-block';
+                if (nextBtn) nextBtn.style.display = 'none';
+                    
+             } else {
+                    checkBtn.textContent = 'Check';
+                    checkBtn.style.display = isAnswered ? 'none' : 'inline-block';
+                    
+                    if (nextBtn) {
+                        nextBtn.style.display = isAnswered ? 'inline-block' : 'none';
+                    }
+                }
+            }
+        }
+    
+        // Show feedback with safety checks
+        function showFeedback(feedbackData, questionNum) {
+            const feedbackElement = document.getElementById(`feedback-${questionNum}`);
+            if (feedbackElement && feedbackData) {
+                feedbackElement.classList.remove('d-none');
+                
+                const feedbackTitle = document.getElementById(`feedback-title-${questionNum}`);
+                const feedbackContent = document.getElementById(`feedback-content-${questionNum}`);
+                
+                if (feedbackTitle && feedbackContent) {
+                    if (feedbackData.isCorrect) {
+                        feedbackElement.classList.remove('incorrect-feedback');
+                        feedbackElement.classList.add('correct-feedback');
+                        feedbackTitle.textContent = 'Correct ✓';
+                        feedbackTitle.style.color = '#28a745';
+                        feedbackContent.innerHTML = feedbackData.explanation || '';
+                    } else {
+                        feedbackElement.classList.remove('correct-feedback');
+                        feedbackElement.classList.add('incorrect-feedback');
+                        feedbackTitle.textContent = 'Incorrect';
+                        feedbackTitle.style.color = '#dc3545';
+                        
+                        // Format incorrect feedback as requested
+                        let contentHTML = '';
+                        if (feedbackData.explanation) {
+                            contentHTML += `<p style="color: #dc3545; margin-bottom: 10px;">${feedbackData.explanation}</p>`;
+                        }
+                        
+                        if (feedbackData.correctAnswers && feedbackData.correctAnswers.length > 0) {
+                            contentHTML += '<div style="margin-left: 15px;">';
+                            feedbackData.correctAnswers.forEach(answer => {
+                                contentHTML += `<div style="color: #000;">- ${answer}</div>`;
+                            });
+                            contentHTML += '</div>';
+                        }
+                        
+                        feedbackContent.innerHTML = contentHTML || 'No explanation available.';
+                    }
+                }
+            }
+        }
+    
+        function hideFeedback(questionNum) {
+            const feedbackElement = document.getElementById(`feedback-${questionNum}`);
+            if (feedbackElement) {
+                feedbackElement.classList.add('d-none');
+            }
+        }
+    
+        // Question grid click events
+        document.querySelectorAll('.question-number').forEach(num => {
+            if (num) {
+                num.addEventListener('click', function() {
+                    const questionNum = parseInt(this.textContent);
+                    if (!isNaN(questionNum)) {
+                        showQuestion(questionNum);
+                    }
+                });
+            }
+        });
+    
+        // Navigation buttons with safety checks
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const reviewBtn = document.getElementById('review-btn');
+        const checkBtn = document.getElementById('check-btn');
+    
+        if (prevBtn) {
+            prevBtn.addEventListener('click', function() {
+                if (currentQuestion > 1) {
+                    showQuestion(currentQuestion - 1);
+                }
+            });
+        }
+    
+        if (nextBtn) {
+            nextBtn.addEventListener('click', function() {
+                if (currentQuestion < totalQuestions) {
+                    showQuestion(currentQuestion + 1);
+                }
+            });
+        }
+    
+        if (reviewBtn) {
+            reviewBtn.addEventListener('click', function() {
+                questionStatus[currentQuestion - 1] = 'review';
+                updateQuestionGrid();
+                alert(`Question ${currentQuestion} marked for review.`);
+            });
+        }
+    
+        // Check button with improved error handling
+if (checkBtn) {
+    checkBtn.addEventListener('click', function() {
+        const currentQuestionElement = document.getElementById(`question-${currentQuestion}`);
+        if (!currentQuestionElement) return;
+        
+        // If this is the Finish Test button on last question
+        if (currentQuestion === totalQuestions && questionStatus[currentQuestion - 1] !== 'unanswered') {
             submitTest();
             return;
         }
         
-        const minutes = Math.floor(timeRemaining / 60);
-        const seconds = timeRemaining % 60;
-        document.getElementById('time-display').textContent = 
-            `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        timeRemaining--;
-    }
-    
-    const timerInterval = setInterval(updateTimer, 1000);
-
-    // Question navigation
-    function showQuestion(questionNum) {
-        // Hide all questions
-        document.querySelectorAll('.question-block').forEach(q => {
-            q.classList.add('d-none');
-        });
+        const questionType = currentQuestionElement.dataset.questionType;
+        let isCorrect = false;
+        let selectedChoices = [];
         
-        // Show selected question
-        const currentQuestionElement = document.getElementById(`question-${questionNum}`);
-        if (currentQuestionElement) {
-            currentQuestionElement.classList.remove('d-none');
-            currentQuestion = questionNum;
-            document.getElementById('current-question-number').textContent = questionNum;
+        if (questionType === 'single') {
+            // Handle single choice (radio buttons)
+            const selectedRadio = currentQuestionElement.querySelector('input[type="radio"]:checked');
+            if (!selectedRadio) {
+                alert('Please select an answer before checking.');
+                return;
+            }
             
-            // Update question grid
+            isCorrect = selectedRadio.dataset.isCorrect === 'true';
+            selectedChoices = [selectedRadio.value];
+            userAnswers[currentQuestion] = selectedRadio.value;
+            
+        } else if (questionType === 'multiple') {
+            // Handle multiple choice (checkboxes)
+            const selectedCheckboxes = currentQuestionElement.querySelectorAll('input[type="checkbox"]:checked');
+            if (selectedCheckboxes.length === 0) {
+                alert('Please select at least one answer before checking.');
+                return;
+            }
+            
+            // Check if all selected are correct and all correct are selected
+            const allCheckboxes = currentQuestionElement.querySelectorAll('input[type="checkbox"]');
+            let correctCount = 0;
+            let selectedCorrectCount = 0;
+            
+            allCheckboxes.forEach(cb => {
+                const isChoiceCorrect = cb.dataset.isCorrect === 'true';
+                const isSelected = cb.checked;
+                
+                if (isChoiceCorrect) correctCount++;
+                if (isSelected && isChoiceCorrect) selectedCorrectCount++;
+                if (isSelected) selectedChoices.push(cb.value);
+            });
+            
+            // User must select ALL correct answers and NO incorrect answers
+            isCorrect = (selectedCorrectCount === correctCount) && 
+                       (selectedChoices.length === correctCount);
+            
+            userAnswers[currentQuestion] = selectedChoices;
+        } else {
+            alert('Unknown question type.');
+            return;
+        }
+        
+        // Save answer to server
+        saveAnswer(currentQuestionElement.dataset.questionId, selectedChoices).then(data => {
+            // Use server response for correctness
+            isCorrect = data.is_correct;
+            
+            questionStatus[currentQuestion - 1] = isCorrect ? 'correct' : 'incorrect';
+            
+            // Store feedback data
+            questionFeedback[currentQuestion - 1] = {
+                isCorrect: isCorrect,
+                correctAnswers: data.correct_answers || [],
+                explanation: data.explanation || ""
+            };
+            
+            // Show feedback
+            showFeedback(questionFeedback[currentQuestion - 1], currentQuestion);
+            
+            // Color code choices
+            colorCodeChoices(isCorrect, selectedChoices, currentQuestionElement, data.correct_choice_ids || []);
+            
+            // Update UI
             updateQuestionGrid();
-            
-            // Update navigation buttons
             updateNavigationButtons();
             
-            // Show/hide feedback if available
-            const feedback = questionFeedback[questionNum - 1];
-            if (feedback) {
-                showFeedback(feedback, questionNum);
-            } else {
-                hideFeedback(questionNum);
-            }
-        }
-    }
-
-    function updateQuestionGrid() {
-        document.querySelectorAll('.question-number').forEach((num, index) => {
-            if (!num) return;
-            
-            num.classList.remove('active', 'answered', 'correct', 'incorrect', 'review');
-            
-            if (index + 1 === currentQuestion) {
-                num.classList.add('active');
-            }
-            
-            const status = questionStatus[index];
-            if (status === 'answered') {
-                num.classList.add('answered');
-            } else if (status === 'correct') {
-                num.classList.add('correct');
-            } else if (status === 'incorrect') {
-                num.classList.add('incorrect');
-            } else if (status === 'review') {
-                num.classList.add('review');
-            }
-        });
-    }
-
-    function updateNavigationButtons() {
-        const prevBtn = document.getElementById('prev-btn');
-        const nextBtn = document.getElementById('next-btn');
-        const checkBtn = document.getElementById('check-btn');
-        
-        // Previous button
-        if (prevBtn) {
-            prevBtn.style.display = currentQuestion > 1 ? 'inline-block' : 'none';
-        }
-        
-        // Next and Check buttons
-        if (checkBtn) {
-            const isAnswered = questionStatus[currentQuestion - 1] !== 'unanswered';
-            
+            // If last question and answered, the button should now say "Finish Test"
+            // Next click will submit the test
             if (currentQuestion === totalQuestions) {
                 checkBtn.textContent = 'Finish Test';
-                checkBtn.style.display = 'inline-block';
-                if (nextBtn) nextBtn.style.display = 'none';
-            } else {
-                checkBtn.textContent = 'Check';
-                checkBtn.style.display = isAnswered ? 'none' : 'inline-block';
-                
-                if (nextBtn) {
-                    nextBtn.style.display = isAnswered ? 'inline-block' : 'none';
-                }
             }
-        }
-    }
-
-    // Show feedback with safety checks
-    function showFeedback(feedbackData, questionNum) {
-        const feedbackElement = document.getElementById(`feedback-${questionNum}`);
-        if (feedbackElement && feedbackData) {
-            feedbackElement.classList.remove('d-none');
-            
-            const feedbackTitle = document.getElementById(`feedback-title-${questionNum}`);
-            const feedbackContent = document.getElementById(`feedback-content-${questionNum}`);
-            
-            if (feedbackTitle && feedbackContent) {
-                if (feedbackData.isCorrect) {
-                    feedbackElement.classList.remove('incorrect-feedback');
-                    feedbackElement.classList.add('correct-feedback');
-                    feedbackTitle.textContent = 'Correct';
-                    feedbackTitle.style.color = '#28a745';
-                } else {
-                    feedbackElement.classList.remove('correct-feedback');
-                    feedbackElement.classList.add('incorrect-feedback');
-                    feedbackTitle.textContent = 'Incorrect';
-                    feedbackTitle.style.color = '#dc3545';
-                    
-                    // Show correct answer in feedback
-                    if (feedbackData.correctAnswers && feedbackData.correctAnswers.length > 0) {
-                        feedbackContent.innerHTML = `<p><strong>The correct answer is:</strong> ${feedbackData.correctAnswers.join(', ')}</p>
-                                                   <p>${feedbackData.explanation || 'No explanation available.'}</p>`;
-                    }
-                }
-            }
-        }
-    }
-
-    function hideFeedback(questionNum) {
-        const feedbackElement = document.getElementById(`feedback-${questionNum}`);
-        if (feedbackElement) {
-            feedbackElement.classList.add('d-none');
-        }
-    }
-
-    // Question grid click events
-    document.querySelectorAll('.question-number').forEach(num => {
-        if (num) {
-            num.addEventListener('click', function() {
-                const questionNum = parseInt(this.textContent);
-                showQuestion(questionNum);
-            });
-        }
-    });
-
-    // Navigation buttons with safety checks
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
-    const reviewBtn = document.getElementById('review-btn');
-    const checkBtn = document.getElementById('check-btn');
-
-    if (prevBtn) {
-        prevBtn.addEventListener('click', function() {
-            if (currentQuestion > 1) {
-                showQuestion(currentQuestion - 1);
-            }
-        });
-    }
-
-    if (nextBtn) {
-        nextBtn.addEventListener('click', function() {
-            if (currentQuestion < totalQuestions) {
-                showQuestion(currentQuestion + 1);
-            }
-        });
-    }
-
-    if (reviewBtn) {
-        reviewBtn.addEventListener('click', function() {
-            questionStatus[currentQuestion - 1] = 'review';
-            updateQuestionGrid();
-            alert(`Question ${currentQuestion} marked for review.`);
-        });
-    }
-
-    // Check button with improved error handling
-    if (checkBtn) {
-        checkBtn.addEventListener('click', function() {
-            const currentQuestionElement = document.getElementById(`question-${currentQuestion}`);
-            if (!currentQuestionElement) return;
-            
-            const questionType = currentQuestionElement.dataset.questionType;
-            let isCorrect = false;
-            let selectedChoices = [];
-            
-            if (questionType === 'single') {
-                // Handle single choice (radio buttons)
-                const selectedRadio = currentQuestionElement.querySelector('input[type="radio"]:checked');
-                if (!selectedRadio) {
-                    alert('Please select an answer before checking.');
-                    return;
-                }
-                
-                isCorrect = selectedRadio.dataset.isCorrect === 'true';
-                selectedChoices = [selectedRadio.value];
-                userAnswers[currentQuestion] = selectedRadio.value;
-                
-            } else if (questionType === 'multiple') {
-                // Handle multiple choice (checkboxes)
-                const selectedCheckboxes = currentQuestionElement.querySelectorAll('input[type="checkbox"]:checked');
-                if (selectedCheckboxes.length === 0) {
-                    alert('Please select at least one answer before checking.');
-                    return;
-                }
-                
-                // Check if all selected are correct and all correct are selected
-                const allCheckboxes = currentQuestionElement.querySelectorAll('input[type="checkbox"]');
-                let correctCount = 0;
-                let selectedCorrectCount = 0;
-                
-                allCheckboxes.forEach(cb => {
-                    const isChoiceCorrect = cb.dataset.isCorrect === 'true';
-                    const isSelected = cb.checked;
-                    
-                    if (isChoiceCorrect) correctCount++;
-                    if (isSelected && isChoiceCorrect) selectedCorrectCount++;
-                    if (isSelected) selectedChoices.push(cb.value);
-                });
-                
-                // User must select ALL correct answers and NO incorrect answers
-                isCorrect = (selectedCorrectCount === correctCount) && 
-                           (selectedChoices.length === correctCount);
-                
-                userAnswers[currentQuestion] = selectedChoices;
-            }
-            
-            // Save answer
-            saveAnswer(currentQuestionElement.dataset.questionId, selectedChoices, isCorrect).then(data => {
-                questionStatus[currentQuestion - 1] = isCorrect ? 'correct' : 'incorrect';
-                
-                // Show feedback, color code, etc.
-                const correctAnswers = getCorrectAnswers(currentQuestionElement);
-                const explanation = getQuestionExplanation(currentQuestionElement);
-                
-                questionFeedback[currentQuestion - 1] = {
-                    isCorrect,
-                    correctAnswers,
-                    explanation
-                };
-                
-                showFeedback(questionFeedback[currentQuestion - 1], currentQuestion);
-                colorCodeChoices(isCorrect, selectedChoices, currentQuestionElement);
-                updateQuestionGrid();
-                updateNavigationButtons();
-                
-                // If last question, call submitTest automatically when clicked
-                if (currentQuestion === totalQuestions) {
-                    submitTest();
-                }
-            });
-        });
-    }
-
-    // Helper function to get correct answers safely
-    function getCorrectAnswers(questionElement) {
-        try {
-            const questionType = questionElement.dataset.questionType;
-            const correctInputs = questionElement.querySelectorAll('input[data-is-correct="true"]');
-            const correctAnswers = [];
-            
-            correctInputs.forEach(input => {
-                const choiceLabel = input.closest('.choice-label');
-                if (choiceLabel) {
-                    const choiceText = choiceLabel.querySelector('.choice-text');
-                    if (choiceText) {
-                        correctAnswers.push(choiceText.textContent.trim());
-                    }
-                }
-            });
-            
-            return correctAnswers.length > 0 ? correctAnswers : ['Correct answer not available'];
-        } catch (error) {
-            console.error('Error getting correct answers:', error);
-            return ['Error loading correct answers'];
-        }
-    }
-
-    // Helper function to get question explanation safely
-    function getQuestionExplanation(questionElement) {
-        try {
-            const questionId = questionElement.dataset.questionId;
-            // This would ideally come from the server response
-            return 'Explanation will be displayed here.';
-        } catch (error) {
-            console.error('Error getting explanation:', error);
-            return 'No explanation available.';
-        }
-    }
-
-    // Color code choices based on answer
-    function colorCodeChoices(isCorrect, selectedChoices, questionElement) {
-        const choices = questionElement.querySelectorAll('.choice-label');
-        
-        choices.forEach(choice => {
-            const input = choice.querySelector('input');
-            if (!input) return;
-            
-            const isThisCorrect = input.hasAttribute('data-is-correct') && 
-                                 input.dataset.isCorrect === 'true';
-            const isSelected = selectedChoices.includes(input.value);
-            
-            // Reset all classes
-            choice.classList.remove('correct-choice', 'selected-incorrect', 'selected-correct');
-            
-            if (isThisCorrect) {
-                choice.classList.add('correct-choice');
-            }
-            
-            if (isSelected) {
-                if (isThisCorrect) {
-                    choice.classList.add('selected-correct');
-                } else {
-                    choice.classList.add('selected-incorrect');
-                }
-            }
-        });
-    }
-
-    // Save answer to server with better error handling
-    function saveAnswer(questionId, choiceIds, isCorrect) {
-        const csrftoken = getCookie('csrftoken');
-        return fetch('{% url "save_answer" %}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken
-            },
-            body: JSON.stringify({
-                question_id: questionId,
-                choice_ids: Array.isArray(choiceIds) ? choiceIds : [choiceIds],
-                is_correct: isCorrect,
-                test_id: '{{ test.id }}'
-            })
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Answer saved:', data);
-            return data;
-        })
-        .catch(error => {
+        }).catch(error => {
             console.error('Error saving answer:', error);
-            throw error;
+            alert('There was an error checking your answer. Please try again.');
         });
+      });
     }
-
-    // Submit test
-    function submitTest() {
-        if (confirm('Are you sure you want to finish the test?')) {
-            clearInterval(timerInterval);
-            const csrftoken = getCookie('csrftoken');
-            // Calculate total answered questions
-            const answeredQuestions = questionStatus.filter(status => 
-                status === 'correct' || status === 'incorrect' || status === 'answered'
-            ).length;
+    
+        // Color code choices based on answer
+        function colorCodeChoices(isCorrect, selectedChoices, questionElement, correctChoiceIds) {
+            const choices = questionElement.querySelectorAll('.choice-label');
             
-            const correctCount = questionStatus.filter(status => status === 'correct').length;
-            
-            // Calculate percentage
-            const score = Math.round((correctCount / totalQuestions) * 100);
-            
-            // Get the time display text
-            const timeDisplay = document.getElementById('time-display');
-            const timerText = timeDisplay ? timeDisplay.textContent : "00:00";
-
-            fetch("{% url 'save_test_score' %}", {
+            choices.forEach(choice => {
+                const input = choice.querySelector('input');
+                if (!input) return;
                 
-                method: "POST",
+                const isThisCorrect = input.hasAttribute('data-is-correct') && 
+                                     input.dataset.isCorrect === 'true';
+                const isSelected = selectedChoices.includes(input.value);
+                
+                // Reset all classes
+                choice.classList.remove('correct-choice', 'selected-incorrect', 'selected-correct', 'incorrect');
+                
+                // Add correct choice styling
+                if (isThisCorrect || correctChoiceIds.includes(parseInt(input.value))) {
+                    choice.classList.add('correct-choice');
+                }
+                
+                // Add selection styling
+                if (isSelected) {
+                    if (isThisCorrect) {
+                        choice.classList.add('selected-correct');
+                    } else {
+                        choice.classList.add('selected-incorrect');
+                    }
+                }
+            });
+        }
+    
+        // Save answer to server
+        function saveAnswer(questionId, choiceIds) {
+            const csrftoken = getCookie('csrftoken');
+            return fetch('{% url "save_answer" %}', {
+                method: 'POST',
                 headers: {
-                   "Content-Type": "application/json",
-                   "X-CSRFToken": csrftoken
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
                 },
                 body: JSON.stringify({
-                    test_id: "{{ test.id }}",
-                    score: score,
-                    correct: correctCount,
-                    wrong: totalQuestions - correctCount,
-                    total: totalQuestions,
-                    time_taken: timerText,
-                    answers: userAnswers
+                    question_id: questionId,
+                    choice_ids: Array.isArray(choiceIds) ? choiceIds : [choiceIds]
                 })
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error('Network response was not ok: ' + response.status);
                 }
                 return response.json();
             })
             .then(data => {
-                if (data.redirect_url) {
-                    window.location.href = data.redirect_url;
-                } else if (data.error) {
-                    alert("Error: " + data.error);
-                } else {
-                    alert("Unknown server error");
+                if (data.error) {
+                    throw new Error(data.error);
                 }
-            })
-            .catch(error => {
-                console.error("Error submitting test:", error);
-                alert("Problem submitting test.");
+                return data;
             });
         }
-    }
-
+    
+        // Submit test
+        function submitTest() {
+            if (confirm('Are you sure you want to finish the test?')) {
+                clearInterval(timerInterval);
+                const csrftoken = getCookie('csrftoken');
+                
+                // Calculate scores
+                const answeredQuestions = questionStatus.filter(status => 
+                    status !== 'unanswered'
+                ).length;
+                
+                const correctCount = questionStatus.filter(status => status === 'correct').length;
+                const score = Math.round((correctCount / totalQuestions) * 100);
+                
+                // Get the time display text
+                const timeDisplay = document.getElementById('time-display');
+                const timerText = timeDisplay ? timeDisplay.textContent : "00:00";
+    
+                fetch("{% url 'save_test_score' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": csrftoken
+                    },
+                    body: JSON.stringify({
+                        test_id: "{{ test.id }}",
+                        score: score,
+                        correct: correctCount,
+                        wrong: totalQuestions - correctCount,
+                        total: totalQuestions,
+                        time_taken: timerText,
+                        answers: userAnswers
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.redirect_url) {
+                        window.location.href = data.redirect_url;
+                    } else if (data.error) {
+                        alert("Error: " + data.error);
+                    } else {
+                        alert("Unknown server error");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error submitting test:", error);
+                    alert("Problem submitting test: " + error.message);
+                });
+            }
+        }
+    
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -687,13 +706,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             return cookieValue;
         }
-
-
-    // Initialize
-    showQuestion(1);
-    updateNavigationButtons();
-});
-</script>
+    
+        // Initialize
+        showQuestion(1);
+        updateNavigationButtons();
+    });
+    </script>
 
 <style>
 .test-container {

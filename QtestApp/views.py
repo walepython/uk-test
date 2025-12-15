@@ -143,7 +143,9 @@ def save_answer(request):
         return JsonResponse({
             'status': 'saved',
             'is_correct': user_answer.is_correct,
-            'correct_answers': [c.text for c in correct_choices]
+            'correct_choice_ids': list(correct_choices.values_list('id', flat=True)),
+            'correct_answers': [c.text for c in correct_choices],
+            'explanation': question.explanation or ""
         })
 
     except TestSession.DoesNotExist:
