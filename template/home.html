@@ -13,25 +13,32 @@
         margin: 0;
         padding: 0;
         background: #ffffff;
+        padding-top: 80px;
     }
 
     /* Banner */
-    .top-banner {
-        display: flex;
-        flex-direction: column;
-        background: #2d9cdb;
-        color: white;
-        padding: 25px 40px;
-        text-align: center;
-        font-weight: bold;
-        font-size: 20px;
-        letter-spacing: 1px;
-        margin: 30px 80px;
-        border-radius: 8px;
-        position: relative;
-        opacity: 1; /* Ensure it's visible */
-        transition: opacity 0.3s ease, transform 0.3s ease; 
-    }
+.top-banner {
+    display: flex;
+    flex-direction: column;
+    background: #2d9cdb;
+    color: white;
+    padding: 25px 40px;
+    text-align: center;
+    margin-top:80px auto;
+    font-weight: bold;
+    font-size: 20px;
+    letter-spacing: 1px;
+
+    /* ✅ CORRECT SPACING */
+    margin: 30px auto;
+    max-width: 1200px;
+    width: calc(100% - 40px);
+
+    border-radius: 8px;
+    position: relative;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
     .top-banner.hidden {
         opacity: 0;
         transform: translateY(-20px);
@@ -214,7 +221,7 @@
     /* For tablets and small laptops (max-width: 1024px) */
     @media screen and (max-width: 1024px) {
         .top-banner {
-            margin: 20px 40px;
+            /* margin: 150px 40px; */
             padding: 20px 30px;
             font-size: 18px;
         }
@@ -252,8 +259,8 @@
     /* For tablets (max-width: 768px) */
     @media screen and (max-width: 768px) {
         .top-banner {
-            margin: 15px 20px;
-            padding: 15px 20px;
+            margin: 40px auto;
+            padding: 18px 20px;
             font-size: 16px;
         }
 
@@ -307,7 +314,7 @@
     /* For mobile phones (max-width: 480px) */
     @media screen and (max-width: 480px) {
         .top-banner {
-            margin: 10px 15px;
+            margin: 80px auto;
             padding: 15px;
             font-size: 14px;
         }
@@ -399,7 +406,7 @@
         }
 
         .top-banner {
-            margin: 15px 20px;
+            margin: 40px 20px;
             padding: 15px;
         }
 

@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="auth-container">
+    <div class="auth-card">
+        <h2 class="auth-title">Login</h2>
+
+        <form action="{% url 'login' %}" method="POST">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <input type="text" name="username" placeholder="Username" required>
+            </div>
+
+            <div class="form-group">
+                <input type="password" name="password" placeholder="Password" required>
+            </div>
+
+            <button type="submit" class="auth-btn">Login</button>
+        </form>
+    </div>
+</div>
+<style>
+    /* AUTH FORM STYLES */
+
+.auth-container {
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+}
+
+.auth-card {
+    background: #ffffff;
+    padding: 30px;
+    width: 100%;
+    max-width: 380px;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.auth-title {
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: 600;
+    color: #0d6efd;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    font-size: 15px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.15rem rgba(13,110,253,.25);
+}
+
+.auth-btn {
+    width: 100%;
+    padding: 12px;
+    background: #0d6efd;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.auth-btn:hover {
+    background: #0b5ed7;
+}
+
+</style>
+
+{% endblock %}

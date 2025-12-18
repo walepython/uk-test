@@ -10,30 +10,186 @@
 
     <link rel="stylesheet" href="{% static 'home.css' %}">
     <style>
-        .navbar-brand {
-            font-weight: bold;
-        }
-        .nav-link {
-            font-weight: 500;
-        }
-        .test-card {
-            transition: transform 0.2s;
-            border: 2px solid transparent;
-        }
-        .test-card:hover {
-            transform: translateY(-5px);
-            border-color: #0d6efd;
-        }
-        .progress-bar {
-            transition: width 0.5s ease-in-out;
-        }
-        .choice-label {
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .choice-label:hover {
-            background-color: #f8f9fa;
-        }
+        /* NAVBAR STYLING */
+
+/* FIXED NAVBAR - CORRECT */
+/* NAVBAR STYLING - FIXED VERSION */
+
+/* FIXED NAVBAR */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    z-index: 1100;
+    background-color: #0d6efd !important; /* Ensure background stays */
+}
+
+/* PUSH PAGE CONTENT DOWN */
+body {
+    padding-top: 80px;
+}
+
+/* Brand (Life in the UK Test Web) */
+.navbar-brand {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #ffffff !important;
+}
+
+/* Nav links */
+.navbar-nav .nav-link {
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    margin: 0 12px;
+    color: #ffffff !important;
+    position: relative;
+}
+
+/* Hover effect */
+.navbar-nav .nav-link:hover {
+    color: #e2e6ea !important;
+}
+
+/* Active underline animation */
+.navbar-nav .nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -6px;
+    width: 0;
+    height: 2px;
+    background: #ffffff;
+    transition: width 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover::after {
+    width: 100%;
+}
+
+/* My Account icon spacing */
+.navbar-nav .fa-user {
+    margin-right: 6px;
+}
+
+/* Dropdown menu styling */
+.dropdown-menu {
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+/* Spacing between main nav items */
+.navbar-nav.me-auto {
+    gap: 10px;
+}
+
+/* ========== MOBILE STYLES (only for small screens) ========== */
+@media (max-width: 991.98px) { /* Changed from 768px to 991.98px for consistency */
+    /* Mobile navbar height */
+    .navbar {
+        height: 80px;
+        padding: 0;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    body {
+        padding-top: 70px;
+    }
+    
+    /* Mobile sidebar styling */
+    .navbar-collapse {
+        position: fixed;
+        top: 0;
+        left: -250px;
+        width: 250px;
+        height: 100%;
+        background-color: #0d6efd;
+        padding: 80px 20px 20px 20px;
+        z-index: 1050;
+        overflow-y: auto;
+        transition: left 0.3s ease;
+    }
+    
+    /* When collapsed menu is shown */
+    .navbar-collapse.show {
+        left: 0;
+    }
+    
+    /* Mobile nav items - vertical layout */
+    .navbar-nav {
+        flex-direction: column !important;
+        width: 100%;
+    }
+    
+    .navbar-nav .nav-link {
+        margin: 8px 0;
+        padding: 10px 15px !important;
+        border-radius: 5px;
+    }
+    
+    .navbar-nav .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Account dropdown in mobile */
+    .navbar-nav .nav-item.dropdown {
+        margin-top: 15px;
+    }
+    
+    /* Toggler button */
+    .navbar-toggler {
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        z-index: 1100;
+    }
+    
+    .navbar-toggler:focus {
+        box-shadow: none;
+    }
+}
+
+/* ========== DESKTOP STYLES (for large screens) ========== */
+@media (min-width: 992px) {
+    /* Reset navbar-collapse for desktop */
+    .navbar-collapse {
+        position: static !important;
+        width: auto !important;
+        height: auto !important;
+        background-color: transparent !important;
+        padding: 0 !important;
+        overflow: visible !important;
+    }
+    
+    /* Horizontal layout for desktop */
+    .navbar-nav {
+        flex-direction: row !important;
+    }
+    
+    /* Container spacing */
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 15px;
+    }
+    
+    /* Center navbar content */
+    .navbar-expand-lg .navbar-collapse {
+        display: flex !important;
+        justify-content: space-between;
+    }
+}
+
+/* ========== EXTRA LARGE SCREENS ========== */
+@media (min-width: 1200px) {
+    .navbar-nav .nav-link {
+        margin: 0 15px;
+    }
+}
+
+
     </style>
 </head>
 <body>
@@ -74,10 +230,46 @@
                     </li>
                 </ul>
                 <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">My account</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="accountDropdown"
+                           role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa fa-user"></i> My Account
+                        </a>
+                
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            {% if user.is_authenticated %}
+                                <li>
+                                    <span class="dropdown-item-text">
+                                        Hello, {{ user.username }}
+                                    </span>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'dashboard' %}">
+                                        Dashboard
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                                        Logout
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'login' %}">
+                                        Login
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'register' %}">
+                                        Register
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
                     </li>
                 </ul>
+                
             </div>
         </div>
     </nav>
@@ -114,6 +306,37 @@
             </div>
         </div>
     </footer>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const navbar = document.querySelector('.navbar-collapse');
+    const toggler = document.querySelector('.navbar-toggler');
+    
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const isClickInsideNavbar = navbar.contains(event.target);
+        const isClickOnToggler = toggler.contains(event.target);
+        
+        if (!isClickInsideNavbar && !isClickOnToggler && navbar.classList.contains('show')) {
+            // Bootstrap 5 way to collapse
+            const collapseInstance = bootstrap.Collapse.getInstance(navbar);
+            if (collapseInstance) {
+                collapseInstance.hide();
+            }
+        }
+    });
+    
+    // Close menu when clicking on a link (optional)
+    navbar.addEventListener('click', function(event) {
+        if (event.target.tagName === 'A' && window.innerWidth < 992) {
+            const collapseInstance = bootstrap.Collapse.getInstance(navbar);
+            if (collapseInstance) {
+                collapseInstance.hide();
+            }
+        }
+    });
+});
+</script>
+        
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     {% block extra_js %}{% endblock %}

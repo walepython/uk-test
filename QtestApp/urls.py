@@ -36,5 +36,11 @@ urlpatterns = [
     # path('exam/<int:exam_id>/results/<int:attempt_id>/', views.exam_results, name='exam_results'),
     path('save-answer/', views.save_answer, name='save_answer'),
 
+    path("register/", views.register_view, name="register"),
+    path("login/", views.login_view, name="login"),
+    path("logout/", views.logout_view, name="logout"),
+    path("dashboard/", views.dashboard, name="dashboard"),
+    path("admin/", views.admin_only_view, name="admin"),
+
 
 ]
