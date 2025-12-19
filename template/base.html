@@ -189,6 +189,223 @@ body {
     }
 }
 
+/* FOOTER STYLING */
+footer {
+    background: linear-gradient(135deg, #2c3e50 0%, #1a1a2e 100%) !important;
+    color: #ffffff;
+    padding: 40px 0 20px;
+    margin-top: auto;
+    border-top: 3px solid #3498db;
+}
+
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Top section with social icons and copyright */
+.footer-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+/* Copyright section */
+.copyright {
+    font-size: 14px;
+    color: #bdc3c7;
+    line-height: 1.6;
+}
+
+.copyright a {
+    color: #3498db;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    margin: 0 5px;
+}
+
+.copyright a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+/* Social icons section */
+.footer-social {
+    display: flex;
+    gap: 15px;
+}
+
+.social-icon {
+    
+    text-decoration: none;
+    transition: all 0.3s ease;
+   
+}
+
+.social-icon:hover {
+    /* background: #3498db; */
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+    border-color: #3498db;
+}
+
+/* Footer symbol section */
+.footer-symbol {
+    font-size: 20px;
+    font-weight: bold;
+    color: #3498db;
+    letter-spacing: 2px;
+    text-align: center;
+    padding: 15px 0;
+    margin: 20px 0;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    width: 100%;
+    font-family: monospace;
+}
+
+/* Protected text */
+.protected-text {
+    font-size: 12px;
+    color: #95a5a6;
+    text-align: center;
+    margin-top: 10px;
+    font-weight: 300;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* Bottom border */
+.footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
+    width: 100%;
+    text-align: center;
+}
+
+/* Additional footer links */
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 15px;
+}
+
+.footer-links a {
+    color: #bdc3c7;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+    color: #ffffff;
+}
+.fa-facebook-f{
+    display: flex;
+    align-items:center;
+    justify-content:center;
+    background-color:#1877F2;
+    width:35px;
+    height:35px;
+    color:#fff;
+    border-radius:10px;
+}
+
+.fa-twitter{
+    display: flex;
+    align-items:center;
+    justify-content:center;
+    background-color:#1DA1F2;
+    width:35px;
+    height:35px;
+    color:#fff;
+    border-radius:10px;
+}
+
+.fa-instagram{
+    display: flex;
+    align-items:center;
+    justify-content:center;
+    background: linear-gradient(45deg, #405DE6, #5851DB, #833AB4, #C13584, #E1306C, #FD1D1D, #F56040, #F77737, #FCAF45, #FFDC80);
+    width:35px;
+    height:35px;
+    color:#fff;
+    border-radius:10px;
+}
+
+.fa-youtube{
+    display: flex;
+    align-items:center;
+    justify-content:center;
+    background-color:#FF0000;
+    width:35px;
+    height:35px;
+    color:#fff;
+    border-radius:10px;
+}
+
+.fa-linkedin-in{
+    display: flex;
+    align-items:center;
+    justify-content:center;
+    background-color:#0077B5;
+    width:35px;
+    height:35px;
+    color:#fff;
+    border-radius:10px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .footer-top {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+    
+    .footer-social {
+        justify-content: center;
+    }
+    
+    .copyright {
+        order: 2;
+        margin-top: 20px;
+    }
+    
+    .footer-links {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .footer-symbol {
+        font-size: 16px;
+        letter-spacing: 1px;
+    }
+}
+
+@media (max-width: 480px) {
+    footer {
+        padding: 30px 0 15px;
+    }
+    
+    .copyright {
+        font-size: 12px;
+    }
+    
+    .social-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
+    }
+}
 
     </style>
 </head>
@@ -292,20 +509,62 @@ body {
     </main>
 
     <!-- Footer -->
-    <footer class="bg-dark text-light py-4 mt-5">
-        <div class="footer-content">
+    <!-- Footer -->
+<footer class="bg-dark text-light">
+    <div class="footer-content">
+        <!-- Top section with social icons and copyright -->
+        <div class="footer-top">
+            <!-- Copyright section -->
             <div class="copyright">
                 <p>
                     © Copyright 2025 | Life in the UK Test Web | All Rights Reserved | 
-                    <a href="/">Terms and Conditions</a> | 
-                    <a href="/">Privacy Policy</a>
+                    <a href="{/}">Terms and Conditions</a> | 
+                    <a href="{/}">Privacy Policy</a>
                 </p>
             </div>
-            <div class="footer-symbol">
-                <p>f#O.«.?¢:oO®8</p>
+            
+            <!-- Social icons -->
+            <div class="footer-social">
+                <a href="#" class="social-icon" aria-label="Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="#" class="social-icon" aria-label="Twitter">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a href="#" class="social-icon" aria-label="Instagram">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="#" class="social-icon" aria-label="YouTube">
+                    <i class="fab fa-youtube"></i>
+                </a>
+                <a href="#" class="social-icon" aria-label="LinkedIn">
+                    <i class="fab fa-linkedin-in"></i>
+                </a>
             </div>
         </div>
-    </footer>
+        
+        <!-- Symbol/Logo section -->
+        <div class="footer-symbol">
+            ° B8a0u8
+        </div>
+        
+        <!-- Additional links (optional) -->
+        <!-- <div class="footer-links">
+            <a href="{% url 'about' %}">About Us</a>
+            <a href="{% url 'contact' %}">Contact</a>
+            <a href="{/}">FAQ</a>
+            <a href="{/}">Sitemap</a>
+            <a href="{/}">Blog</a>
+        </div> -->
+        
+        <!-- Protected text -->
+        <div class="footer-bottom">
+            <div class="protected-text">
+                PROTECTED
+            </div>
+        </div>
+    </div>
+</footer>
     <script>
 document.addEventListener('DOMContentLoaded', function() {
     const navbar = document.querySelector('.navbar-collapse');
