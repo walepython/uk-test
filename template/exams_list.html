@@ -3,6 +3,8 @@
 {% load static %}
 
 {% block content %}
+<script src="https://kit.fontawesome.com/yourkitcode.js"></script>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <div class="exams-page">
     <div class="header-section">
         <h1>British Citizenship Practice Exams</h1>
@@ -26,20 +28,20 @@
                         {{ exam.total_questions }} Questions
                     </span>
                     <span class="stat">
-                        <i class="fas fa-clock"></i>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M15 1H9v2h6V1zm-4 13h2V8h-2v6zm8.03-6.61l1.42-1.42c-.43-.51-.9-.99-1.41-1.41l-1.42 1.42C16.07 4.74 14.12 4 12 4c-4.97 0-9 4.03-9 9s4.02 9 9 9 9-4.03 9-9c0-2.12-.74-4.07-1.97-5.61zM12 20c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>
+                          </svg>
                         {{ exam.time_limit_minutes }} Minutes
                     </span>
                 </div>
             </div>
             <div class="exam-footer">
                 <a href="{% url 'take_exam' exam.id %}" class="start-exam-btn">
-                    Start Exam
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z"/>
+                      </svg> Start Exam
                 </a>
-                {% if user.is_authenticated %}
-                <a href="#" class="resume-btn">
-                    Resume
-                </a>
-                {% endif %}
+                
             </div>
         </div>
         {% endfor %}
@@ -67,10 +69,11 @@
 .header-section {
     text-align: center;
     margin-bottom: 50px;
+ 
 }
 
 .header-section h1 {
-    color: #045cc3;
+    color: #6f42c1;
     font-size: 2.5rem;
     margin-bottom: 15px;
 }
@@ -102,7 +105,7 @@
 }
 
 .exam-header {
-    background: #045cc3;
+    background: #6f42c1;
     color: white;
     padding: 20px;
     display: flex;

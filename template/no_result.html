@@ -1,0 +1,35 @@
+<!-- no_results.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <h3 class="card-title mb-4">No Results Found</h3>
+                    
+                    {% if error %}
+                    <div class="alert alert-warning">
+                        <p>{{ error }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    <p class="mb-4">You need to complete the test first to see results.</p>
+                    
+                    <div class="d-grid gap-2">
+                        {% if test %}
+                        <a href="{% url 'take_test' test.id %}" class="btn btn-primary">
+                            Take the Test
+                        </a>
+                        {% endif %}
+                        <a href="/" class="btn btn-secondary">
+                            Return Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

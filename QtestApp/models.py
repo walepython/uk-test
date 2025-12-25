@@ -26,12 +26,16 @@ class Test(models.Model):
         ordering = ['order', 'created_at']
     
     def __str__(self):
-       if self.category == 'life_in_uk':
-            return f"Life in the UK Test {self.series_number}"
-       elif self.category == 'chapter':
-            return f"Chapter {self.chapter} - {self.title}"
-       else:
+       
+        if self.title:
             return self.title
+        
+        if self.category == 'life_in_uk':
+            return f"Life in the UK Test {self.series_number}"
+        elif self.category == 'chapter':
+            return f"Chapter {self.chapter}"
+        else:
+            return f"Test {self.id}"
     
     @property
     def question_count(self):
@@ -44,7 +48,7 @@ class Exam(models.Model):
     total_questions = models.IntegerField(default=24,blank=True, null=True)
     is_published = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True,blank=True, null=True)
-    order = models.IntegerField(default=0,blank=True, null=True)  # For ordering exams
+    order = models.IntegerField(default=0,blank=True, null=True) 
     
     class Meta:
         ordering = ['order', 'created_at']
@@ -70,8 +74,8 @@ class Question(models.Model):
         ordering = ['order', 'created_at']
     
     def __str__(self):
-        return f"{self.text[:100]}..."  # Show first 100 characters
-
+        return f"{self.text[:100]}..."  
+        
 class Answer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers',blank=True, null=True)
     text = models.TextField()
@@ -101,6 +105,7 @@ class Choice(models.Model):
 class TestSession(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name='sessions', null=True, blank=True)
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name='sessions', null=True, blank=True)
     session_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
     started_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
@@ -143,6 +148,8 @@ class UserAnswer(models.Model):
     
     def __str__(self):
         return f"Answer for Q{self.question.id} in {self.session.session_id}"
+
+    
 
 class TestProgress(models.Model):
     session = models.OneToOneField(TestSession, on_delete=models.CASCADE, related_name='progress',null=True, blank=True)

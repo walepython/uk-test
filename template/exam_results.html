@@ -1,0 +1,389 @@
+<!-- results.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="results-page">
+    <div class="results-container">
+        <div class="results-card">
+            
+            <!-- FAIL/PASS Status -->
+            <div class="status-banner {% if passed %}passed{% else %}failed{% endif %}">
+                {% if passed %}
+                    PASS
+                {% else %}
+                    FAIL
+                {% endif %}
+            </div>
+            
+            <!-- Test Title -->
+            <h1 class="exam-title">
+                {% if exam %}
+                    {{ exam.title }} - Results
+                {% elif test %}
+                    {{ test.title }} - Results
+                {% endif %}
+            </h1>
+
+            
+            <div class="progress-circle">
+                <svg width="200" height="200" viewBox="0 0 200 200">
+                    <!-- Background circle -->
+                    <circle class="circle-bg" cx="100" cy="100" r="90"></circle>
+                    <!-- Progress circle -->
+                    <circle class="circle-progress" cx="100" cy="100" r="90"></circle>
+                    <!-- Score text -->
+                    <text class="circle-text" x="100" y="110" text-anchor="middle">{{ percentage_score|floatformat:0 }}%</text>
+                </svg>
+            </div>
+            
+            <!-- Results Grid -->
+            <div class="results-grid">
+                <div class="result-item">
+                    <span class="result-label">Total Questions:</span>
+                    <strong class="result-value">{{ total_questions|default:"0" }}</strong>
+                </div>
+
+                <div class="result-item">
+                    <span class="result-label">Correct Answers:</span>
+                    <strong class="result-value">{{ correct_answers|default:"0" }}</strong>
+                </div>
+
+                <div class="result-item">
+                    <span class="result-label">Score Percentage:</span>
+                    <strong class="result-value">{{ percentage_score|floatformat:2 }}%</strong>
+                </div>
+                
+
+                <div class="result-item">
+                    <span class="result-label">Time Taken:</span>
+                    <strong class="result-value">{{ time_taken|default:"00:00" }}</strong>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                {% if exam %}
+                    <a href="{% url 'take_exam' exam.id %}" class="btn btn-retake">Retake Test</a>
+                {% elif test %}
+                    <a href="{% url 'take_test' test.id %}" class="btn btn-retake">Retake Test</a>
+                {% endif %}
+                <a href="{% url 'home' %}" class="btn btn-home">Go Home</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+/* Main Container */
+.results-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 40px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.results-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.results-card {
+    width: 100%;
+    max-width: 600px;
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Status Banner */
+.status-banner {
+    padding: 20px 40px;
+    font-size: 36px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin: -40px -40px 40px -40px;
+    text-transform: uppercase;
+    font-family: 'Arial Black', sans-serif;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 1;
+}
+
+.status-banner.failed {
+    background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+    color: white;
+}
+
+.status-banner.passed {
+    background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+    color: white;
+}
+
+/* Exam Title */
+.exam-title {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #eee;
+    font-weight: 600;
+}
+
+/* Results Grid */
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.result-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 25px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.result-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.result-label {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.result-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: #333;
+}
+
+/* Individual item styling */
+.result-item:nth-child(1) .result-value {
+    color: #2196F3; /* Blue for total questions */
+}
+
+.result-item:nth-child(2) .result-value {
+    color: #4CAF50; /* Green for correct answers */
+}
+
+.result-item:nth-child(3) .result-value {
+    color: #FF9800; /* Orange for score percentage */
+}
+
+.result-item:nth-child(4) .result-value {
+    color: #9C27B0; /* Purple for time taken */
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 30px;
+    padding-top: 30px;
+    border-top: 2px solid #eee;
+}
+
+.btn {
+    padding: 16px 40px;
+    font-size: 18px;
+    font-weight: 600;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    min-width: 180px;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn-retake {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    color: white;
+    box-shadow: 0 6px 20px rgba(33, 150, 243, 0.3);
+}
+
+.btn-retake:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(33, 150, 243, 0.4);
+}
+
+.btn-home {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    color: white;
+    box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+}
+
+.btn-home:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(108, 117, 125, 0.4);
+}
+
+/* Progress Circle (optional) */
+.progress-circle {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 40px;
+    position: relative;
+}
+
+.circle-bg {
+    fill: none;
+    stroke: #eee;
+    stroke-width: 10;
+}
+
+.circle-progress {
+    fill: none;
+    stroke: #4CAF50;
+    stroke-width: 10;
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    transition: stroke-dashoffset 1.5s ease;
+}
+
+.circle-text {
+    font-size: 36px;
+    font-weight: 700;
+    fill: #333;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .results-page {
+        padding: 20px;
+    }
+    
+    .results-card {
+        padding: 30px 20px;
+        margin: 20px;
+    }
+    
+    .status-banner {
+        font-size: 28px;
+        padding: 15px 30px;
+        margin: -30px -20px 30px -20px;
+    }
+    
+    .exam-title {
+        font-size: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .results-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .result-item {
+        padding: 20px;
+    }
+    
+    .result-value {
+        font-size: 28px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .btn {
+        width: 100%;
+        padding: 14px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .status-banner {
+        font-size: 24px;
+        padding: 12px 20px;
+    }
+    
+    .exam-title {
+        font-size: 18px;
+    }
+    
+    .result-value {
+        font-size: 24px;
+    }
+    
+    .result-label {
+        font-size: 14px;
+    }
+}
+
+/* Animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.results-card {
+    animation: fadeInUp 0.8s ease;
+}
+
+.result-item {
+    animation: fadeInUp 0.8s ease;
+    animation-fill-mode: both;
+}
+
+.result-item:nth-child(1) { animation-delay: 0.2s; }
+.result-item:nth-child(2) { animation-delay: 0.4s; }
+.result-item:nth-child(3) { animation-delay: 0.6s; }
+.result-item:nth-child(4) { animation-delay: 0.8s; }
+
+.action-buttons {
+    animation: fadeInUp 0.8s ease;
+    animation-delay: 1s;
+    animation-fill-mode: both;
+}
+</style>
+
+<!-- Optional: Add progress circle if you have percentage_score -->
+{% if percentage_score %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const score = parseFloat("{{ percentage_score }}");
+    const circle = document.querySelector('.circle-progress');
+    if (circle) {
+        const radius = circle.r.baseVal.value;
+        const circumference = radius * 2 * Math.PI;
+        const offset = circumference - (score / 100) * circumference;
+        circle.style.strokeDasharray = `${circumference} ${circumference}`;
+        circle.style.strokeDashoffset = circumference;
+        setTimeout(() => {
+            circle.style.strokeDashoffset = offset;
+        }, 100);
+    }
+});
+</script>
+{% endif %}
+{% endblock %}

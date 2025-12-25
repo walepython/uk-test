@@ -143,9 +143,7 @@
                 </div>
                 <div class="support-body">
                     <p>
-                        Lifeintheuktestweb has been created as a free source to help migrants 
-                        prepare for the British Citizenship test. If you like this project 
-                        and would like to help us maintain it please donate. Thanks and good luck!
+                        This platform is provided free of charge to help people prepare for the Life in the UK Test. If you find it useful and would like to support ongoing development and maintenance, you can make a voluntary contribution below.
                     </p>
                     
                     <!-- Donate Section -->
@@ -176,7 +174,7 @@
                     <div class="quick-test-section">
                         <h4>TEST YOUR KNOWLEDGE</h4>
                         <p>Try a quick 5-question quiz</p>
-                        <a href="#" class="quick-test-btn">Start Quick Test</a>
+                        <a href="{% url 'quick_test' %}" class="quick-test-btn">Start Quick Test</a>
                     </div>
                 </div>
             </div>
@@ -255,14 +253,14 @@
         }
         
         // Quick test button
-        const quickTestBtn = document.querySelector('.quick-test-btn');
-        if (quickTestBtn) {
-            quickTestBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                alert('Starting 5-question quick test... Good luck!');
-                // In production, this would start a quick test
-            });
-        }
+        // const quickTestBtn = document.querySelector('.quick-test-btn');
+        // if (quickTestBtn) {
+        //     quickTestBtn.addEventListener('click', function(e) {
+        //         e.preventDefault();
+        //         alert('Starting 5-question quick test... Good luck!');
+        //         // In production, this would start a quick test
+        //     });
+        // }
     
         // Main Test JavaScript
         const questionsContainer = document.getElementById('questions-container');
@@ -608,89 +606,144 @@ if (checkBtn) {
             });
         }
     
-        // Save answer to server
-        function saveAnswer(questionId, choiceIds) {
-            const csrftoken = getCookie('csrftoken');
-            return fetch('{% url "save_answer" %}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken
-                },
-                body: JSON.stringify({
-                    question_id: questionId,
-                    choice_ids: Array.isArray(choiceIds) ? choiceIds : [choiceIds]
-                })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok: ' + response.status);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-                return data;
-            });
-        }
+        // Update the saveAnswer function in your JavaScript
+function saveAnswer(questionId, choiceIds) {
+    const csrftoken = getCookie('csrftoken');
     
+    // Check if this is an exam (check if we have attempt_id in your template)
+    let attemptId = null;
+    const examDataElement = document.getElementById('exam-data');
+    if (examDataElement) {
+        attemptId = examDataElement.dataset.attemptId;
+    }
+    
+    // Prepare data based on whether it's single or multiple choice
+    const postData = {
+        question_id: questionId,
+        attempt_id: attemptId  // Add attempt_id
+    };
+    
+    // Determine if it's single or multiple choice
+    if (Array.isArray(choiceIds) && choiceIds.length === 1) {
+        // Single choice - send as answer_id
+        postData.answer_id = choiceIds[0];
+    } else if (Array.isArray(choiceIds) && choiceIds.length > 1) {
+        // Multiple choice - send as choice_ids
+        postData.choice_ids = choiceIds;
+    } else if (!Array.isArray(choiceIds)) {
+        // Single choice (not array)
+        postData.answer_id = choiceIds;
+    }
+    
+    console.log('Saving answer data:', postData);  // Debug log
+    
+    return fetch('{% url "save_answer" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify(postData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok: ' + response.status);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Save answer response:', data);  // Debug log
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        return data;
+    });
+}
         // Submit test
         function submitTest() {
-            if (confirm('Are you sure you want to finish the test?')) {
-                clearInterval(timerInterval);
-                const csrftoken = getCookie('csrftoken');
-                
-                // Calculate scores
-                const answeredQuestions = questionStatus.filter(status => 
-                    status !== 'unanswered'
-                ).length;
-                
-                const correctCount = questionStatus.filter(status => status === 'correct').length;
-                const score = Math.round((correctCount / totalQuestions) * 100);
-                
-                // Get the time display text
-                const timeDisplay = document.getElementById('time-display');
-                const timerText = timeDisplay ? timeDisplay.textContent : "00:00";
-    
-                fetch("{% url 'save_test_score' %}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRFToken": csrftoken
-                    },
-                    body: JSON.stringify({
-                        test_id: "{{ test.id }}",
-                        score: score,
-                        correct: correctCount,
-                        wrong: totalQuestions - correctCount,
-                        total: totalQuestions,
-                        time_taken: timerText,
-                        answers: userAnswers
-                    })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.redirect_url) {
-                        window.location.href = data.redirect_url;
-                    } else if (data.error) {
-                        alert("Error: " + data.error);
-                    } else {
-                        alert("Unknown server error");
-                    }
-                })
-                .catch(error => {
-                    console.error("Error submitting test:", error);
-                    alert("Problem submitting test: " + error.message);
-                });
-            }
+    if (confirm('Are you sure you want to finish the test?')) {
+        clearInterval(timerInterval);
+        const csrftoken = getCookie('csrftoken');
+        
+        // Calculate scores
+        const correctCount = questionStatus.filter(status => status === 'correct').length;
+        const score = Math.round((correctCount / totalQuestions) * 100);
+        
+        // Get the time display text
+        const timeDisplay = document.getElementById('time-display');
+        const timerText = timeDisplay ? timeDisplay.textContent : "00:00";
+        
+        // Show loading state
+        const checkBtn = document.getElementById('check-btn');
+        if (checkBtn) {
+            checkBtn.disabled = true;
+            checkBtn.textContent = 'Submitting...';
         }
+
+        console.log('Submitting test with data:', {
+            test_id: "{{ test.id }}",
+            score: score,
+            correct: correctCount,
+            total: totalQuestions,
+            time_taken: timerText
+        });
+
+        fetch("{% url 'save_test_score' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrftoken
+            },
+            body: JSON.stringify({
+                test_id: "{{ test.id }}",
+                score: score,
+                correct: correctCount,
+                wrong: totalQuestions - correctCount,
+                total: totalQuestions,
+                time_taken: timerText,
+                answers: userAnswers
+            })
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response data:', data);
+            
+            if (data.success && data.redirect_url) {
+                // Redirect to results page
+                window.location.href = data.redirect_url;
+            } else if (data.error) {
+                alert("Error: " + data.error);
+                if (checkBtn) {
+                    checkBtn.disabled = false;
+                    checkBtn.textContent = 'Finish Test';
+                }
+            } else {
+                // Fallback redirect
+                window.location.href = "{% url 'test_results' test.id %}";
+            }
+        })
+        .catch(error => {
+            console.error("Error submitting test:", error);
+            alert("Problem submitting test. Please try again.");
+            
+            // Fallback - try direct redirect
+            setTimeout(() => {
+                window.location.href = "{% url 'test_results' test.id %}";
+            }, 1000);
+            
+            if (checkBtn) {
+                checkBtn.disabled = false;
+                checkBtn.textContent = 'Finish Test';
+            }
+        });
+    }
+}
     
         function getCookie(name) {
             let cookieValue = null;

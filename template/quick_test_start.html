@@ -1,0 +1,693 @@
+<!-- templates/quick_test_start.html -->
+{% extends 'base.html' %}
+
+{% block title %}Quick Test - 5 Questions Quiz{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <!-- Start Screen -->
+            <div id="startScreen" style="background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 30px;">
+                <!-- Header -->
+                <div style="background: #6f42c1; color: white; text-align: center; padding: 30px; border-radius: 15px 15px 0 0;">
+                    <h2 style="margin: 0; font-size: 28px;"><i class="bi bi-lightning-charge"></i> TEST YOUR KNOWLEDGE</h2>
+                </div>
+                
+                <!-- Body -->
+                <div style="padding: 40px; text-align: center;">
+                    <!-- Icon -->
+                    <div style="margin-bottom: 30px;">
+                        <i class="bi bi-question-circle" style="color: #6f42c1; font-size: 4rem;"></i>
+                    </div>
+                    
+                    <!-- Title -->
+                    <h3 style="color: #333; margin-bottom: 15px; font-size: 24px;">Quick 5-Question Quiz</h3>
+                    
+                    <!-- Description -->
+                    <p style="color: #666; margin-bottom: 40px; font-size: 16px; line-height: 1.6;">
+                        Test your knowledge with 5 random questions. No time limit, just pure learning!
+                    </p>
+                    
+                    <!-- Features Row -->
+                    <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 40px; flex-wrap: wrap;">
+                        <!-- Feature 1 -->
+                        <div class="feature-box" style="flex: 1; min-width: 200px; border: 2px solid #e0e0e0; border-radius: 10px; padding: 20px; transition: all 0.3s;">
+                            <i class="bi bi-shuffle" style="color: #6f42c1; font-size: 2rem; margin-bottom: 10px;"></i>
+                            <h6 style="color: #333; margin: 10px 0 5px 0; font-size: 16px;">Random Questions</h6>
+                            <small style="color: #888;">Different each time</small>
+                        </div>
+                        
+                        <!-- Feature 2 -->
+                        <div class="feature-box" style="flex: 1; min-width: 200px; border: 2px solid #e0e0e0; border-radius: 10px; padding: 20px; transition: all 0.3s;">
+                            <i class="bi bi-clock" style="color: #6f42c1; font-size: 2rem; margin-bottom: 10px;"></i>
+                            <h6 style="color: #333; margin: 10px 0 5px 0; font-size: 16px;">Instant Results</h6>
+                            <small style="color: #888;">See score immediately</small>
+                        </div>
+                        
+                        <!-- Feature 3 -->
+                        <div class="feature-box" style="flex: 1; min-width: 200px; border: 2px solid #e0e0e0; border-radius: 10px; padding: 20px; transition: all 0.3s;">
+                            <i class="bi bi-lightbulb" style="color: #6f42c1; font-size: 2rem; margin-bottom: 10px;"></i>
+                            <h6 style="color: #333; margin: 10px 0 5px 0; font-size: 16px;">Learn from Mistakes</h6>
+                            <small style="color: #888;">Detailed explanations</small>
+                        </div>
+                    </div>
+                    <!-- Start Button -->
+                    <button id="startQuickTestBtn" 
+                            style="background: #6f42c1; 
+                                   color: white; 
+                                   border: none; 
+                                   padding: 15px 40px; 
+                                   border-radius: 8px; 
+                                   font-size: 18px; 
+                                   cursor: pointer;
+                                   transition: all 0.3s;">
+                        <i class="bi bi-play-circle me-2"></i> Start Quick Test
+                    </button>
+                </div>
+            </div>
+
+            <!-- Test Screen (Hidden Initially) -->
+            <div id="testScreen" class="card shadow-lg border-0 d-none" >
+                <div class="card-header purple-light text-white" style="background: #6f42c1; color: white; ">
+                    <div class="d-flex justify-content-between align-items-center" >
+                        <h4 class="mb-0"><i class="bi bi-pencil-square"></i> Quick Test</h4>
+                        <span id="questionCounter" class="badge bg-light text-dark fs-6">Question 1/5</span>
+                    </div>
+                    <div class="progress mt-3" style="height: 8px;">
+                        <div id="progressBar" class="progress-bar purple-progress" role="progressbar" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form id="quickTestForm">
+                        <div id="questionsContainer"></div>
+                        
+                        <div class="d-flex justify-content-between mt-5 pt-3 border-top">
+                            <button type="button" id="prevQuestionBtn" class="btn btn-outline-purple d-none"style="background:rgb(193, 191, 66); color: white; ">
+                                <i class="bi bi-arrow-left me-2"></i> Previous
+                            </button>
+                            
+                            <div>
+                                <button type="button" id="nextQuestionBtn" class="btn btn-outline-purple" style="background: #6f42c1; color: white; ">
+                                    Next <i class="bi bi-arrow-right ms-2"></i>
+                                </button>
+                                <button type="submit" id="submitTestBtn" class="btn purple-btn d-none ms-2" style="background: #6f42c1; color: white; ">
+                                    <i class="bi bi-check-circle me-2"></i> Submit Test
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Results Screen (Hidden Initially) -->
+            <div id="resultsScreen" class="card shadow-lg border-0 d-none">
+                <div class="card-header success-purple text-white" style="background: #6f42c1; color: white; ">
+                    <h4 class="mb-0"><i class="bi bi-trophy"></i> Test Results</h4>
+                </div>
+                <div class="card-body">
+                    <div id="resultsContent"></div>
+                </div>
+                <div class="card-footer text-center">
+                    <button id="retakeTestBtn" class="btn purple-btn me-2" style="background: #6f42c1; color: white; ">
+                        <i class="bi bi-arrow-repeat me-2"></i> Take Another Test
+                    </button>
+                    <a href="{% url 'quick_test' %}" class="btn btn-outline-purple" style="background:rgb(36, 42, 210); color: white; ">
+                        <i class="bi bi-house me-2"></i> Back to Start
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Purple color palette */
+:root {
+    --purple-primary: #6f42c1;
+    --purple-dark: #5a32a3;
+    --purple-light: #8364c9;
+    --purple-lighter: #e7d7f5;
+    --purple-outline: #c1a6f0;
+    --success-purple: #5d3c9e;
+}
+
+/* Card headers */
+.custom-purple-header {
+    background-color: var(--purple-primary) !important;
+    border-bottom: none !important;
+}
+
+
+.purple-light {
+    background-color: var(--purple-light) !important;
+    border-bottom: none !important;
+}
+
+.success-purple {
+    background-color: var(--success-purple) !important;
+    border-bottom: none !important;
+}
+
+/* Purple buttons */
+.purple-btn {
+    background-color: var(--purple-primary) !important;
+    border-color: var(--purple-primary) !important;
+    color: white !important;
+}
+
+.purple-btn:hover {
+    background-color: var(--purple-dark) !important;
+    border-color: var(--purple-dark) !important;
+    color: white !important;
+}
+
+.purple-btn:focus {
+    box-shadow: 0 0 0 0.25rem rgba(111, 66, 193, 0.5) !important;
+}
+
+/* Purple outline buttons */
+.btn-outline-purple {
+    color: var(--purple-primary) !important;
+    border-color: var(--purple-primary) !important;
+}
+
+.btn-outline-purple:hover {
+    background-color: var(--purple-primary) !important;
+    border-color: var(--purple-primary) !important;
+    color: white !important;
+}
+
+/* Purple text */
+.purple-text {
+    color: var(--purple-primary) !important;
+}
+
+/* Purple progress bar */
+.purple-progress {
+    background-color: var(--purple-primary) !important;
+}
+
+/* Feature boxes */
+.feature-box {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    transition: all 0.3s;
+}
+
+.feature-box:hover {
+    border-color: var(--purple-primary);
+    transform: translateY(-5px);
+}
+
+/* Question card */
+.question-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 20px;
+    border-left: 4px solid var(--purple-primary);
+}
+
+/* Answer items */
+.answer-item {
+    padding: 12px 15px;
+    margin: 8px 0;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.answer-item:hover {
+    background: var(--purple-lighter);
+    border-color: var(--purple-outline);
+}
+
+.answer-item.selected {
+    background: var(--purple-lighter);
+    border-color: var(--purple-primary);
+}
+
+.answer-item.correct {
+    background: #d1e7dd;
+    border-color: #198754;
+}
+
+.answer-item.incorrect {
+    background: #f8d7da;
+    border-color: #dc3545;
+}
+
+/* Result card */
+.result-card {
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.score-display {
+    font-size: 4rem;
+    font-weight: bold;
+    color: var(--success-purple);
+}
+
+.badge-lg {
+    font-size: 1rem;
+    padding: 8px 16px;
+}
+
+/* Purple badges */
+.badge.bg-primary {
+    background-color: var(--purple-primary) !important;
+}
+
+/* Form controls focus */
+.form-check-input:focus {
+    border-color: var(--purple-outline);
+    box-shadow: 0 0 0 0.25rem rgba(111, 66, 193, 0.25);
+}
+
+.form-check-input:checked {
+    background-color: var(--purple-primary);
+    border-color: var(--purple-primary);
+}
+
+/* Override Bootstrap's blue focus */
+.btn:focus,
+.btn-check:focus + .btn {
+    box-shadow: 0 0 0 0.25rem rgba(111, 66, 193, 0.25) !important;
+}
+
+/* Links */
+a {
+    color: var(--purple-primary);
+}
+
+a:hover {
+    color: var(--purple-dark);
+}
+
+/* Input focus */
+.form-control:focus {
+    border-color: var(--purple-outline);
+    box-shadow: 0 0 0 0.25rem rgba(111, 66, 193, 0.25);
+}
+
+/* Checkboxes and radios */
+.form-check-input[type="checkbox"]:checked {
+    background-color: var(--purple-primary);
+    border-color: var(--purple-primary);
+}
+
+.form-check-input[type="radio"]:checked {
+    background-color: var(--purple-primary);
+    border-color: var(--purple-primary);
+}
+</style>
+{% endblock %}
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    let currentQuestions = [];
+    let currentQuestionIndex = 0;
+    let userAnswers = {};
+    
+    // Start Test Button
+    $('#startQuickTestBtn').click(function() {
+        loadQuickTestQuestions();
+    });
+    
+    // Navigation Buttons
+    $('#prevQuestionBtn').click(function() {
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            saveCurrentAnswer();
+            renderQuestion();
+            updateNavigation();
+        }
+    });
+    
+    $('#nextQuestionBtn').click(function() {
+        if (currentQuestionIndex < currentQuestions.length - 1) {
+            currentQuestionIndex++;
+            saveCurrentAnswer();
+            renderQuestion();
+            updateNavigation();
+        }
+    });
+    
+    // Retake Test
+    $('#retakeTestBtn').click(function() {
+        resetTest();
+        loadQuickTestQuestions();
+    });
+    
+    // Submit Test
+    $('#quickTestForm').submit(function(e) {
+        e.preventDefault();
+        saveCurrentAnswer();
+        submitQuickTest();
+    });
+    
+    function loadQuickTestQuestions() {
+    console.log("loadQuickTestQuestions called");
+
+    $('#startQuickTestBtn')
+        .prop('disabled', true)
+        .html('<span class="spinner-border spinner-border-sm me-2"></span> Loading Questions...');
+
+    $.ajax({
+        url: "{% url 'quick_test_questions' %}",
+        method: 'GET',
+        success: function (response) {
+            console.log("AJAX Success:", response);
+
+            if (!response.questions || response.questions.length === 0) {
+                alert('No questions available.');
+                return;
+            }
+
+            currentQuestions = response.questions;
+            currentQuestionIndex = 0;
+            userAnswers = {};
+
+            $('#startScreen').addClass('d-none');
+            $('#testScreen').removeClass('d-none');
+            $('#resultsScreen').addClass('d-none');
+
+            renderQuestion();
+            updateNavigation();
+        },
+        error: function () {
+            alert('Error loading questions.');
+        }
+    });
+
+
+    $(document).on('change', '.mc-checkbox', function () {
+            const answerItem = $(this).closest('.answer-item');
+
+            if (this.checked) {
+                answerItem.addClass('selected');
+            } else {
+                answerItem.removeClass('selected');
+            }
+
+            saveCurrentAnswer();
+        });
+
+    $(document).on('change', '.mc-radio', function () {
+        const card = $(this).closest('.question-card');
+
+        card.find('.answer-item').removeClass('selected');
+        $(this).closest('.answer-item').addClass('selected');
+
+        saveCurrentAnswer();
+    });
+
+}
+    
+function renderQuestion() {
+    console.log("renderQuestion called, index:", currentQuestionIndex);
+    
+    const container = $('#questionsContainer');
+    container.empty();
+    
+    if (currentQuestionIndex < currentQuestions.length) {
+        const question = currentQuestions[currentQuestionIndex];
+        const questionId = question.id;
+        const savedAnswer = userAnswers[questionId] || [];
+        
+        console.log("Current question:", question);
+        
+        let questionHtml = `
+            <div class="question-card" data-question-id="${questionId}">
+                <h5 class="mb-4">${question.text}</h5>
+                <div class="answers-container">
+        `;
+        
+        // Check what type of options we have
+        if (question.question_type === 'multiple') {
+    console.log("Multiple choice question - allowing multiple selection");
+    
+    if (question.choices && question.choices.length > 0) {
+        question.choices.forEach((choice, index) => {
+            const isSelected = savedAnswer.includes(choice.id.toString());
+            questionHtml += `
+                <div class="answer-item ${isSelected ? 'selected' : ''}">
+                    <div class="form-check">
+                        <input class="form-check-input mc-checkbox"
+                            type="checkbox"
+                            value="${choice.id}"
+                            ${isSelected ? 'checked' : ''}>
+                        <label class="form-check-label ms-2">
+                            ${choice.text}
+                        </label>
+                    </div>
+                </div>
+            `;
+        });
+    } else if (question.choices && question.choices.length > 0) {
+        // Fallback to answers if choices not available
+        question.choices.forEach((choice, index) => {
+    const isSelected = savedAnswer.includes(choice.id.toString());
+
+    questionHtml += `
+        <div class="answer-item ${isSelected ? 'selected' : ''}">
+            <div class="form-check">
+                <input class="form-check-input mc-checkbox"
+                       type="checkbox"
+                       id="answer_${choice.id}"
+                       value="${choice.id}"
+                       ${isSelected ? 'checked' : ''}>
+                <label class="form-check-label ms-2" for="answer_${choice.id}">
+                    ${choice.text || `Option ${index + 1}`}
+                </label>
+            </div>
+        </div>
+    `;
+    });
+    }
+} else {
+    // Single choice question
+    if (question.choices && question.choices.length > 0) {
+        question.choices.forEach((choice, index) => {
+            const isSelected = savedAnswer.includes(choice.id.toString());
+            questionHtml += `
+                <div class="answer-item ${isSelected ? 'selected' : ''}">
+                    <div class="form-check">
+                        <input class="form-check-input mc-radio"
+                            type="radio"
+                            name="question_${questionId}"
+                            value="${choice.id}"
+                            ${isSelected ? 'checked' : ''}>
+                        <label class="form-check-label ms-2">
+                            ${choice.text}
+                        </label>
+                    </div>
+                </div>
+            `;
+        });
+    }
+        
+        else {
+                console.log("WARNING: No answers found for single choice question");
+                questionHtml += `
+                    <div class="alert alert-warning">
+                        No answer options available for this question.
+                    </div>
+                `;
+            }
+        }
+        
+        questionHtml += `
+                </div>
+            </div>
+        `;
+        
+        container.html(questionHtml);
+        updateProgress();
+    } else {
+        console.error("Question index out of bounds");
+    }
+}
+    
+    function saveCurrentAnswer() {
+        if (currentQuestionIndex < currentQuestions.length) {
+            const questionId = currentQuestions[currentQuestionIndex].id;
+            const question = currentQuestions[currentQuestionIndex];
+            
+            if (question.question_type === 'multiple') {
+                const selectedChoices = [];
+                $('#questionsContainer input[type="checkbox"]:checked').each(function () {
+                    selectedChoices.push($(this).val().toString());
+                });
+                userAnswers[questionId] = selectedChoices;
+            } else {
+                const selectedAnswer = $(`#questionsContainer input[type="radio"]:checked`).val();
+                userAnswers[questionId] = selectedAnswer ? [selectedAnswer.toString()] : [];
+            }
+        }
+    }
+    
+    function updateNavigation() {
+        // Update question counter
+        $('#questionCounter').text(`Question ${currentQuestionIndex + 1}/${currentQuestions.length}`);
+        
+        // Show/hide previous button
+        if (currentQuestionIndex > 0) {
+            $('#prevQuestionBtn').removeClass('d-none');
+        } else {
+            $('#prevQuestionBtn').addClass('d-none');
+        }
+        
+        // Show/hide next/submit buttons
+        if (currentQuestionIndex === currentQuestions.length - 1) {
+            $('#nextQuestionBtn').addClass('d-none');
+            $('#submitTestBtn').removeClass('d-none');
+        } else {
+            $('#nextQuestionBtn').removeClass('d-none');
+            $('#submitTestBtn').addClass('d-none');
+        }
+    }
+    
+    function updateProgress() {
+        const progress = ((currentQuestionIndex + 1) / currentQuestions.length) * 100;
+        $('#progressBar').css('width', progress + '%');
+    }
+    
+    function submitQuickTest() {
+    $('#submitTestBtn')
+        .prop('disabled', true)
+        .html('<span class="spinner-border spinner-border-sm me-2"></span> Submitting...');
+
+    const formattedAnswers = {};
+
+    Object.keys(userAnswers).forEach(questionId => {
+        const question = currentQuestions.find(q => q.id == questionId);
+
+        if (question.question_type === 'multiple') {
+            formattedAnswers[questionId] = userAnswers[questionId]; // ARRAY
+        } else {
+            formattedAnswers[questionId] =
+                userAnswers[questionId].length > 0
+                    ? userAnswers[questionId][0]   // SINGLE VALUE
+                    : '';
+        }
+    });
+
+    $.ajax({
+        url: "{% url 'submit_quick_test' %}",
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ answers: formattedAnswers }),
+        success: function (response) {
+            showResults(response);
+        },
+        error: function () {
+            alert('Error submitting test.');
+            $('#submitTestBtn')
+                .prop('disabled', false)
+                .html('<i class="bi bi-check-circle me-2"></i> Submit Test');
+        }
+    });
+   }
+
+    
+    function resetTest() {
+        currentQuestions = [];
+        currentQuestionIndex = 0;
+        userAnswers = {};
+        
+        $('#startScreen').removeClass('d-none');
+        $('#testScreen').addClass('d-none');
+        $('#resultsScreen').addClass('d-none');
+        $('#startQuickTestBtn').prop('disabled', false).html('<i class="bi bi-play-circle me-2"></i> Start Quick Test');
+        $('#submitTestBtn').prop('disabled', false).html('<i class="bi bi-check-circle me-2"></i> Submit Test');
+    }
+
+
+    function showResults(data) {
+    $('#testScreen').addClass('d-none');
+    $('#resultsScreen').removeClass('d-none');
+
+    let resultsHtml = `
+        <div class="text-center mb-5">
+            <div class="score-display mb-3 ${data.passed ? 'text-success' : 'text-danger'}">
+                ${data.score_percentage}%
+            </div>
+            <h3 class="mb-2">${data.total_correct} out of ${data.total_questions} correct</h3>
+            <span class="badge ${data.passed ? 'bg-success' : 'bg-danger'} badge-lg">
+                ${data.passed ? 'PASSED' : 'FAILED'}
+            </span>
+            <p class="text-muted mt-3">
+                ${data.passed ? 'Great job! You passed the quick test.' : 'Keep practicing! Try again to improve your score.'}
+            </p>
+        </div>
+        <h5 class="mb-3">Question Review:</h5>
+    `;
+
+    data.results.forEach((result, index) => {
+        resultsHtml += `
+            <div class="result-card border ${result.is_correct ? 'border-success' : 'border-danger'}">
+                <div class="p-3">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="mb-0">Question ${index + 1}</h6>
+                        <span class="badge ${result.is_correct ? 'bg-success' : 'bg-danger'}">
+                            ${result.is_correct ? 'Correct' : 'Incorrect'}
+                        </span>
+                    </div>
+                    <p class="mb-3">${result.question_text}</p>
+                    ${result.explanation ? `<div class="alert ${result.is_correct ? 'alert-success' : 'alert-danger'} mb-0">
+                        <strong>Explanation:</strong> ${result.explanation}
+                    </div>` : ''}
+                </div>
+            </div>
+        `;
+    });
+
+    $('#resultsContent').html(resultsHtml);
+}
+
+ // Add hover effects with JavaScript
+ $(document).on('mouseenter', '#startQuickTestBtn', function() {
+        $(this).css('background-color', '#5a32a3');
+        $(this).css('transform', 'translateY(-2px)');
+        $(this).css('box-shadow', '0 5px 15px rgba(111, 66, 193, 0.3)');
+    }).on('mouseleave', '#startQuickTestBtn', function() {
+        $(this).css('background-color', '#6f42c1');
+        $(this).css('transform', 'translateY(0)');
+        $(this).css('box-shadow', 'none');
+    });
+    
+    // Add hover effects to feature boxes
+    $(document).on('mouseenter', '.feature-box', function() {
+        $(this).css('border-color', '#6f42c1');
+        $(this).css('transform', 'translateY(-5px)');
+        $(this).css('box-shadow', '0 5px 15px rgba(111, 66, 193, 0.1)');
+    }).on('mouseleave', '.feature-box', function() {
+        $(this).css('border-color', '#e0e0e0');
+        $(this).css('transform', 'translateY(0)');
+        $(this).css('box-shadow', 'none');
+    });
+    
+});
+
+
+</script>
+<script>
+    console.log("Quick Test page loaded");
+    console.log("Start button exists:", $('#startQuickTestBtn').length > 0);
+    
+    // Test if jQuery is loaded
+    console.log("jQuery version:", $.fn.jquery);
+    
+    // Test if the click handler is attached
+    $('#startQuickTestBtn').on('click', function() {
+        console.log("Start button clicked!");
+    });
+    </script>
+{% endblock %}

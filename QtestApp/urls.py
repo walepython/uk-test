@@ -21,6 +21,8 @@ urlpatterns = [
     path('test/<int:test_id>/results/', views.test_results, name='test_results'),
     path('save-test-score/', views.save_test_score, name='save_test_score'),
     path('study-materials/', views.study_materials, name='study_materials'),
+    path('terms_condition/', views.term_and_condition, name='term_and_condition'),
+    path('privacy/', views.privacy, name='privacy'),
 
     path('chapters/1/', views.chapter1_view, name='chapter1'),
     # Add other chapters similarly
@@ -42,5 +44,16 @@ urlpatterns = [
     path("dashboard/", views.dashboard, name="dashboard"),
     path("admin/", views.admin_only_view, name="admin"),
 
+    path('exam/<int:exam_id>/results/<int:attempt_id>/', views.exam_results, name='exam_results'),
+    path('mark-exam-completed/', views.mark_exam_completed, 
+    name='mark_exam_completed'),
+
+    path('quick-test/', views.QuickTestView.as_view(), name='quick_test'),
+    path('quick-test/questions/', views.QuickTestQuestionsView.as_view(), name='quick_test_questions'),
+    path('quick-test/submit/', views.SubmitQuickTestView.as_view(), name='submit_quick_test'),
+
+
+    # path('exam/session/<int:session_id>/', views.exam_session_view, name='exam_session_view'),
+    # path('exam/<int:exam_id>/restart/', views.restart_exam, name='restart_exam'),
 
 ]

@@ -6,10 +6,13 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'home.css' %}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
 
 <style>
     body {
-        font-family: Arial, sans-serif;
+        font-family: 'Inter', sans-serif;
         margin: 0;
         padding: 0;
         background: #ffffff;
@@ -20,7 +23,7 @@
 .top-banner {
     display: flex;
     flex-direction: column;
-    background: #2d9cdb;
+    background:  #7749f8;
     color: white;
     padding: 25px 40px;
     text-align: center;
@@ -32,7 +35,7 @@
     /* ✅ CORRECT SPACING */
     margin: 30px auto;
     max-width: 1200px;
-    width: calc(100% - 40px);
+    width: calc(100% - 100px);
 
     border-radius: 8px;
     position: relative;
@@ -110,7 +113,7 @@
     }
 
     .hero-text h1 {
-        font-size: 48px;
+        font-size: 38px;
         text-align: center;
         font-weight: bold;
         margin-bottom: 20px;
@@ -130,13 +133,13 @@
     }
 
     .hero-button a {
-        background: #2d9cdb;
+        background: #8d6efd;
         padding: 18px 50px;
         font-size: 20px;
         color: white;
         text-decoration: none;
         font-weight: bold;
-        border-radius: 50px;
+        
         display: inline-block;
         transition: background-color 0.3s ease, transform 0.3s ease;
     }
@@ -184,6 +187,11 @@
         text-decoration: none;
         color: black;
     }
+    a.feature-item1{
+        >img{
+            border-radius:10px;
+        }
+    }
 
     a.feature-item1:hover {
         transform: scale(1.05);
@@ -199,6 +207,13 @@
         object-fit: contain;
         max-width: 100%;
     }
+
+    .feature-item .img {
+        width: 200px;
+        height: 200px;
+        object-fit: contain;
+        max-width: 100%;
+        }
 
     .feature-item h3 {
         margin-top: 20px;
@@ -301,6 +316,11 @@
             height: 180px;
         }
 
+        .feature-item .img {
+            width: 160px;
+            height: 160px;
+        }
+
         .feature-item h3 {
             font-size: 20px;
         }
@@ -365,8 +385,13 @@
         }
 
         .feature-item img {
-            width: 200px;
-            height: 200px;
+            width: 150px;
+            height: 150px;
+        }
+
+        .feature-item img .img {
+            width: 150px;
+            height: 150px;
         }
     }
 
@@ -386,8 +411,12 @@
         }
 
         .feature-item img {
-            width: 180px;
-            height: 180px;
+            width: 150px;
+            height: 150px;
+        }
+        .feature-item img .img {
+            width: 150px;
+            height: 150px;
         }
 
         .feature-item h3 {
@@ -426,26 +455,17 @@
     }
 </style>
 
-<!-- TOP BANNER -->
-<div class="top-banner" id="notificationBanner">
-    <button class="close-btn" id="closeBannerBtn" aria-label="Close notification">×</button>
-    <p class="i">i</p> 
-    <p>WE HAVE A SECTION WITH EXAM QUESTIONS PROVIDED BY USERS. THANK YOU TO ALL THE PEOPLE WHO HAVE CONTRIBUTED WITH THEIR INPUT.</p>
-</div>
+
 
 <!-- HERO SECTION -->
 <div class="hero-container">
     <div class="hero-text">
-        <h1>Life in the UK Test</h1>
+        <h1>Pass the Life in the UK Test – Free Practice Questions</h1>
 
-        <p><strong>Get Ready to pass your Life in the UK test for FREE!</strong></p>
+        <p><strong>Prepare confidently and pass your Life in the UK Test for <span style="color:black; font-weight: bold;">FREE</span>.</strong></p>
 
         <p>
-            This website is designed to help you <strong>PASS the Life in the UK Test easily</strong>.
-            We have carefully selected all our questions from the
-            <strong>Life in the UK: A Guide for New Residents: 3rd edition Handbook</strong>
-            used for the <strong>2025 Life in the UK exam</strong>. And it is completely
-            <span style="color:red; font-weight: bold;">FREE!</span>
+           <a style="color:darkgreen;" href="https://PassTheLifeInUKTest.co.uk" > PassTheLifeInUKTest.co.uk</a> provides accurate, up-to-date practice questions designed to help you succeed in the Life in the UK Test. All questions are carefully selected from the official Life in the UK: A Guide for New Residents (3rd Edition) — the handbook used for the 2026 Life in the UK Test.
         </p>
     </div>
 
@@ -454,9 +474,17 @@
             <img src="{% static 'images/life-in-the-uk-test-practice.jpg' %}" alt="UK Flag">
         </div>
         <div class="hero-button">
-            <a href="#">START PRACTISING NOW</a>
+            <a href="{% url 'take_test' test_id %}">START PRACTISING NOW</a>
         </div>
     </div>
+</div>
+
+<!-- TOP BANNER -->
+<div class="top-banner" id="notificationBanner">
+    <button class="close-btn" id="closeBannerBtn" aria-label="Close notification">×</button>
+    <p class="i">i</p> 
+    <p>Community questions are user-submitted. We review and update them regularly.
+    </p>
 </div>
 
 <!-- FEATURES ICONS -->
@@ -466,18 +494,18 @@
 
         <div class="feature-item">
             <a class="feature-item1" href="{% url 'faqs' %}">
-                <img src="{% static 'images/life-in-the-uk-test-faq.png' %}" alt="FAQs">
+                <img src="{% static 'images/capture-imge5.png' %}" alt="FAQs">
                 <h3>FAQs</h3>
             </a>
             
             <p>
-                Get ready to pass the Life in the UK Test. Practise for the real exam Here!
+                Get ready to Pass The Life in UK Test. Practise for the real exam Here!
             </p>
         </div>
 
         <div class="feature-item">
             <a class="feature-item1" href="{% url 'study_materials' %}">
-                <img src="{% static 'images/life-in-the-uk-test-handbook.png' %}" alt="Study Materials">
+                <img src="{% static 'images/capture-image4.png' %}" alt="Study Materials">
             <h3>Study Materials</h3>
             </a>
             <p>
@@ -486,8 +514,18 @@
         </div>
 
         <div class="feature-item">
+            <a class="feature-item1" href="{% url 'contact' %}">
+                <img class="img" src="{% static 'images/Capture-image3.PNG' %}" alt="Contact Us">
+            <h3>Contact Us</h3>
+            </a>
+            <p>
+                Do not hesitate to contact us for any questions or suggestions.
+            </p>
+        </div>
+
+        <div class="feature-item">
             <a class="feature-item1" href="{% url 'test_content' %}">
-                <img src="{% static 'images/life-in-the-uk-test-centres.png' %}" alt="Test Centres">
+                <img class="img" src="{% static 'images/Capture-image2.PNG' %}" alt="Test Centres">
             <h3>Test Centres</h3>
             </a>
             <p>
@@ -495,15 +533,7 @@
             </p>
         </div>
 
-        <div class="feature-item">
-            <a class="feature-item1" href="{% url 'contact' %}">
-                <img src="{% static 'images/book-life-in-the-uk-test.png' %}" alt="Contact Us">
-            <h3>Contact Us</h3>
-            </a>
-            <p>
-                Do not hesitate to contact us for any questions or suggestions.
-            </p>
-        </div>
+       
 
     </div>
 

@@ -12,7 +12,13 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 import json
+import random
+from django.db import IntegrityError
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import TemplateView, View
 from .forms import ContactForm
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from .models import Choice, Test, Question, TestSession, UserAnswer, TestProgress, Location, ContactMessage,Exam,Answer
 
 
@@ -24,7 +30,7 @@ def test_home(request):
 def life_in_uk_tests(request):
     """View for Life in the UK test series"""
     tests = Test.objects.filter(
-        title__icontains='Life in the UK',  # Filter by title containing "Life in the UK"
+        title__icontains='Life in UK',  # Filter by title containing "Life in the UK"
         is_active=True
     ).order_by('series_number')
     
@@ -100,152 +106,224 @@ def take_test(request, test_id):
 def save_answer(request):
     try:
         data = json.loads(request.body)
-        session_id = request.session.get('test_session_id')
-
-        if not session_id:
-            return JsonResponse({'error': 'No active test session'}, status=400)
-
-        session = TestSession.objects.get(session_id=session_id)
-        question = Question.objects.get(id=data['question_id'])
-
+        
+        # Get all possible parameters
+        attempt_id = data.get('attempt_id')
+        question_id = data.get('question_id')
+        answer_id = data.get('answer_id')
         choice_ids = data.get('choice_ids', [])
-
-        if not choice_ids:
-            return JsonResponse({'error': 'No choices selected'}, status=400)
-
-        # Get selected choices (MULTIPLE SUPPORT)
-        selected_choices = Choice.objects.filter(id__in=choice_ids)
-
-        if not selected_choices.exists():
-            return JsonResponse({'error': 'Invalid choices'}, status=400)
-
+        is_reviewed = data.get('is_reviewed')
+        
+        print(f"DEBUG - Received data: {data}")
+        
+        # Validate required fields
+        if not question_id:
+            return JsonResponse({'error': 'Question ID is required'}, status=400)
+        
+        # Handle review flag
+        if is_reviewed is not None:
+            # Try to get attempt from attempt_id first, then from session
+            if attempt_id:
+                attempt = TestSession.objects.get(id=attempt_id)
+            else:
+                session_id = request.session.get('test_session_id')
+                if not session_id:
+                    return JsonResponse({'error': 'No active session for tests'}, status=400)
+                attempt = TestSession.objects.get(session_id=session_id)
+            
+            question = Question.objects.get(id=question_id)
+            
+            user_answer, created = UserAnswer.objects.get_or_create(
+                session=attempt,
+                question=question
+            )
+            user_answer.is_marked_for_review = is_reviewed
+            user_answer.save()
+            
+            return JsonResponse({
+                'success': True,
+                'is_marked_for_review': user_answer.is_marked_for_review
+            })
+        
+        # Handle answer selection - try both exam and test scenarios
+        attempt = None
+        
+        # Try to get attempt from attempt_id first (for exams)
+        if attempt_id:
+            attempt = TestSession.objects.get(id=attempt_id)
+        # If no attempt_id, try to get from session (for tests)
+        else:
+            session_id = request.session.get('test_session_id')
+            if session_id:
+                attempt = TestSession.objects.get(session_id=session_id)
+        
+        if not attempt:
+            return JsonResponse({'error': 'No active test session or exam attempt'}, status=400)
+        
+        question = Question.objects.get(id=question_id)
+        
+        # Get correct choices for this question
+        correct_choices = question.choices.filter(is_correct=True)
+        correct_choice_ids = list(correct_choices.values_list('id', flat=True))
+        
         user_answer, created = UserAnswer.objects.get_or_create(
-            session=session,
+            session=attempt,
             question=question
         )
-
-        # Clear previous answers
-        user_answer.selected_choices.clear()
-        user_answer.selected_choices.add(*selected_choices)
-
-        # Correct answers
-        correct_choices = question.choices.filter(is_correct=True)
-
-        # Check correctness
-        if question.question_type == 'single':
-            user_answer.is_correct = (
-                selected_choices.count() == 1 and
-                correct_choices.count() == 1 and
-                selected_choices.first() in correct_choices
-            )
-        else:  # multiple
-            user_answer.is_correct = set(selected_choices) == set(correct_choices)
-
+        
+        is_correct = False
+        selected_choice_ids = []
+        
+        # SINGLE CHOICE QUESTIONS
+        if question.question_type == 'single' and answer_id:
+            selected_choice = Choice.objects.get(id=answer_id)
+            user_answer.selected_choice = selected_choice
+            user_answer.selected_choices.clear()
+            
+            is_correct = selected_choice.is_correct
+            selected_choice_ids = [selected_choice.id]
+        
+        # MULTIPLE CHOICE QUESTIONS
+        elif question.question_type == 'multiple' and choice_ids:
+            selected_choices = Choice.objects.filter(id__in=choice_ids)
+            
+            user_answer.selected_choice = None
+            user_answer.selected_choices.clear()
+            user_answer.selected_choices.add(*selected_choices)
+            
+            selected_choice_ids = list(selected_choices.values_list('id', flat=True))
+            
+            # Check correctness
+            selected_ids_set = set(selected_choice_ids)
+            correct_ids_set = set(correct_choice_ids)
+            
+            is_correct = (selected_ids_set == correct_ids_set and 
+                        len(selected_choice_ids) == len(correct_choice_ids))
+        
+        # Update user answer
+        user_answer.is_correct = is_correct
         user_answer.save()
-
+        
         return JsonResponse({
-            'status': 'saved',
+            'success': True,
             'is_correct': user_answer.is_correct,
-            'correct_choice_ids': list(correct_choices.values_list('id', flat=True)),
-            'correct_answers': [c.text for c in correct_choices],
-            'explanation': question.explanation or ""
+            'explanation': question.explanation or "",
+            'selected_choice_ids': selected_choice_ids,
+            'correct_choice_ids': correct_choice_ids,
+            'correct_answers_text': [c.text for c in correct_choices]
         })
-
+        
     except TestSession.DoesNotExist:
-        return JsonResponse({'error': 'Test session not found'}, status=400)
+        return JsonResponse({'error': 'Test session/attempt not found'}, status=400)
     except Question.DoesNotExist:
         return JsonResponse({'error': 'Question not found'}, status=400)
+    except Choice.DoesNotExist:
+        return JsonResponse({'error': 'Choice not found'}, status=400)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 
-
 def test_results(request, test_id):
+    """Display test results for Test objects"""
     test = get_object_or_404(Test, id=test_id)
-
-    # Ensure session exists
-    session_key = request.session.session_key
-    if not session_key:
-        request.session.create()
+    
+    print(f"DEBUG: Accessing results for test {test_id}, user: {request.user}")  # Debug
+    
+    # Get the latest completed session for this user and test
+    attempt = TestSession.objects.filter(
+        test=test,
+        is_completed=True
+    ).order_by('-completed_at').first()
+    
+    # For anonymous users, try to get by session key
+    if not attempt and not request.user.is_authenticated:
         session_key = request.session.session_key
-
-    # Get test session for this user/session
-    test_session = get_object_or_404(TestSession, session_id=session_key, test=test)
-
-     # Get the progress
-    progress = getattr(test_session, 'progress', None)
-
+        if session_key:
+            attempt = TestSession.objects.filter(
+                session_id__contains=session_key,  # Partial match for session-based IDs
+                test=test,
+                is_completed=True
+            ).order_by('-completed_at').first()
+    
+    if not attempt:
+        print(f"DEBUG: No TestSession found for test {test_id}")  # Debug
+        # Redirect back to test or show error
+        return render(request, 'QtestApp/no_results.html', {
+            'test': test,
+            'error': 'No test results found. Please complete the test first.'
+        })
+    
+    print(f"DEBUG: Found TestSession ID: {attempt.id}")  # Debug
+    
     context = {
-        "test": test,
-        "total_questions": test_session.total_questions,
-        'progress': progress,
-        "correct_answers": test_session.correct_answers,
-        "percentage_score": test_session.percentage_score,
-        "time_taken": test_session.time_taken,
-        "passed": test_session.passed,
+        'test': test,
+        'attempt': attempt,
+        'total_questions': attempt.total_questions or test.questions.count(),
+        'correct_answers': attempt.correct_answers or 0,
+        'percentage_score': attempt.score or 0,
+        'time_taken': attempt.time_taken or "00:00",
+        'passed': attempt.passed,
     }
     
+    return render(request, 'test_result.html', context)
 
-    return render(request, "test_result.html", context)
-
+@csrf_exempt
 def save_test_score(request):
     if request.method != "POST":
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
     try:
         data = json.loads(request.body)
-
         test_id = data.get("test_id")
-        score = int(data.get("score", 0))  # Percentage score
+        score = int(data.get("score", 0))
         correct = int(data.get("correct", 0))
-        wrong = int(data.get("wrong", 0))
         total = int(data.get("total", 0))
         time_taken = data.get("time_taken", "00:00")
+        
+        print(f"DEBUG: Received test_id: {test_id}, score: {score}, correct: {correct}, total: {total}")  # Debug
 
         if not test_id:
             return JsonResponse({"error": "Missing test_id"}, status=400)
 
-        # Get Test
         test = get_object_or_404(Test, id=test_id)
-
-        # Ensure session key exists
-        session_key = request.session.session_key
-        if not session_key:
-            request.session.create()
-            session_key = request.session.session_key
-
-        # Create or update TestSession
-        test_session, created = TestSession.objects.get_or_create(
-            session_id=session_key,
+        
+        # Get or create user
+        user = request.user if request.user.is_authenticated else None
+        
+        # Generate unique session ID
+        import uuid
+        session_id = str(uuid.uuid4())
+        
+        # Create TestSession
+        test_session = TestSession.objects.create(
+            session_id=session_id,
             test=test,
-            defaults={
-                "user": request.user if request.user.is_authenticated else None,
-                "total_questions": total,
-                "score": score,  # Store percentage
-                "correct_answers": correct,
-                "time_taken": time_taken,
-                "passed": score >= 75,  # 75% passing threshold
-                "is_completed": True,
-                "completed_at": timezone.now()
-            }
+            user=user,
+            total_questions=total,
+            score=score,
+            correct_answers=correct,
+            time_taken=time_taken,
+            passed=score >= 75,
+            is_completed=True,
+            completed_at=timezone.now()
         )
+        
+        print(f"DEBUG: Created TestSession with ID: {test_session.id}, Session ID: {session_id}")  # Debug
 
-        # If session already exists, update it
-        if not created:
-            test_session.score = score
-            test_session.correct_answers = correct
-            test_session.total_questions = total
-            test_session.time_taken = time_taken
-            test_session.passed = score >= 75
-            test_session.is_completed = True
-            test_session.completed_at = timezone.now()
-            test_session.save()
-
-        # Return redirect URL
         return JsonResponse({
-            "redirect_url": reverse("test_results", args=[test.id])
+            "success": True,
+            "redirect_url": reverse("test_results", args=[test.id]),
+            "session_id": session_id  # Return the session ID for debugging
         })
 
+    except json.JSONDecodeError as e:
+        print(f"JSON Decode Error: {e}")
+        return JsonResponse({"error": "Invalid JSON data"}, status=400)
     except Exception as e:
+        import traceback
+        print(f"Error in save_test_score: {e}")
+        print(traceback.format_exc())
         return JsonResponse({"error": str(e)}, status=500)
     
 def home(request):
@@ -311,6 +389,12 @@ def chapter5_view(request):
 def test_content(request):
     return render(request, 'test_content.html')
 
+def privacy(request):
+    return render(request, 'privacy.html')
+
+def term_and_condition(request):
+    return render(request, 'terms_and_condition.html')
+
 def test_content(request):
     locations = Location.objects.all()
 
@@ -374,59 +458,83 @@ def exam_list(request):
     exams = Exam.objects.filter(is_published=True)
     return render(request, 'exams_list.html', {'exams': exams})
 
+@login_required
 def take_exam(request, exam_id):
-    """Start or continue an exam"""
-    exam = get_object_or_404(Exam, id=exam_id, is_published=True)
+    """Display exam interface"""
+    exam = get_object_or_404(Exam, id=exam_id)
     
-    # Get or create test attempt
-    if request.user.is_authenticated:
-        attempt, created = TestAttempt.objects.get_or_create(
-            user=request.user,
-            exam=exam,
-            is_completed=False
-        )
-    else:
-        # For anonymous users, use session
-        session_id = request.session.session_key
-        if not session_id:
-            request.session.create()
-            session_id = request.session.session_key
-        
-        attempt, created = TestAttempt.objects.get_or_create(
-            session_id=session_id,
-            exam=exam,
-            is_completed=False
-        )
-    
-    # Get all questions for this exam
-    questions = exam.questions.all().prefetch_related('answers')
-    
-    # Create UserAnswer objects for new questions if this is a new attempt
-    if created:
-        for question in questions:
-            UserAnswer.objects.create(
-                attempt=attempt,
-                question=question
-            )
-    
-    # Get current question (first unanswered or first question)
-    current_question = questions.first()
-    
-    # Try to find first unanswered question
-    unanswered = UserAnswer.objects.filter(
-        attempt=attempt,
-        selected_answer__isnull=True
+    # First, check if there's an existing incomplete session
+    attempt = TestSession.objects.filter(
+        user=request.user,
+        exam=exam,
+        is_completed=False  # Changed from 'completed' to 'is_completed'
     ).first()
     
-    if unanswered:
-        current_question = unanswered.question
+    if attempt:
+        # Update the existing session
+        attempt.started_at = timezone.now()
+        attempt.save()
+    else:
+        # Create a new session with a unique session_id
+        try:
+            # Generate unique session ID
+            import time
+            unique_session_id = f"exam_{exam_id}_{request.user.id}_{uuid.uuid4()}"
+            
+            attempt = TestSession.objects.create(
+                user=request.user,
+                exam=exam,
+                session_id=unique_session_id,
+                started_at=timezone.now(),
+                is_completed=False
+            )
+            
+        except IntegrityError as e:
+            # If there's still a duplicate, try with timestamp
+            unique_session_id = f"exam_{exam_id}_{request.user.id}_{uuid.uuid4()}_{int(time.time())}"
+            
+            attempt = TestSession.objects.create(
+                user=request.user,
+                exam=exam,
+                session_id=unique_session_id,
+                started_at=timezone.now(),
+                is_completed=False
+            )
+    
+    # Get user's answers to show status
+    user_answers = UserAnswer.objects.filter(session=attempt)
+    
+    # Separate correct, review, and incorrect questions
+    correct_questions = []
+    review_questions = []
+    incorrect_questions = []
+    
+    for user_answer in user_answers:
+        if user_answer.is_marked_for_review:
+            review_questions.append(user_answer.question.order)
+        else:
+            # Check if answer is correct
+            correct_choices = set(user_answer.question.choices.filter(is_correct=True).values_list('id', flat=True))
+            user_choices = set(user_answer.selected_choices.values_list('id', flat=True))
+            
+            if user_answer.question.question_type == 'multiple':
+                is_correct = correct_choices == user_choices
+            else:
+                is_correct = len(user_choices) == 1 and list(user_choices)[0] in correct_choices
+            
+            if is_correct:
+                correct_questions.append(user_answer.question.order)
+            else:
+                incorrect_questions.append(user_answer.question.order)
     
     context = {
         'exam': exam,
         'attempt': attempt,
-        'current_question': current_question,
-        'total_questions': exam.total_questions,
+        'total_questions': exam.questions.count(),
         'time_limit': exam.time_limit_minutes * 60,  # Convert to seconds
+        'correct_answers': correct_questions,
+        'review_answers': review_questions,
+        'incorrect_answers': incorrect_questions,
     }
     
     return render(request, 'take_exam.html', context)
@@ -434,7 +542,7 @@ def take_exam(request, exam_id):
 def exam_question(request, exam_id, question_number):
     """Get specific question"""
     exam = get_object_or_404(Exam, id=exam_id)
-    attempt = get_object_or_404(TestAttempt, id=request.GET.get('attempt_id'))
+    attempt = get_object_or_404(TestSession, id=request.GET.get('attempt_id'))
     
     try:
         question = exam.questions.get(order=question_number)
@@ -442,36 +550,134 @@ def exam_question(request, exam_id, question_number):
         return JsonResponse({'error': 'Question not found'}, status=404)
     
     # Get user's answer for this question
+    selected_choice_id = None
+    selected_choice_ids = []
+    is_reviewed = False
+    
     try:
-        user_answer = UserAnswer.objects.get(attempt=attempt, question=question)
-        selected_answer_id = user_answer.selected_answer.id if user_answer.selected_answer else None
-        is_reviewed = user_answer.is_reviewed
+        user_answer = UserAnswer.objects.get(session=attempt, question=question)
+        is_reviewed = user_answer.is_marked_for_review
+        
+        # Get selected answers based on question type
+        if question.question_type == 'single':
+            # FIXED: Use selected_choices instead of selected_choice
+            # Get the first selected choice for single answer questions
+            if user_answer.selected_choices.exists():
+                selected_choice = user_answer.selected_choices.first()
+                selected_choice_id = int(selected_choice.id)
+        else:  # multiple choice
+            # Get all selected choices from ManyToMany field
+            selected_choice_ids = list(user_answer.selected_choices.values_list('id', flat=True))
+                
     except UserAnswer.DoesNotExist:
-        selected_answer_id = None
-        is_reviewed = False
+        pass  # Use default values
+    
+    # Get all choices for this question
+    choices = question.choices.all()
     
     # Prepare question data
     question_data = {
-        'id': question.id,
-        'text': question.text,
-        'order': question.order,
+        'id': int(question.id),
+        'text': str(question.text),
+        'order': int(question.order),
+        'question_type': str(question.question_type),
+        'explanation': str(question.explanation) if question.explanation else "",
         'answers': [
             {
-                'id': answer.id,
-                'text': answer.text,
-                'is_correct': answer.is_correct
+                'id': int(choice.id),
+                'text': str(choice.text),
+                'is_correct': bool(choice.is_correct)
             }
-            for answer in question.answers.all()
+            for choice in choices
         ],
-        'selected_answer': selected_answer_id,
-        'is_reviewed': is_reviewed,
-        'total_questions': exam.questions.count()
+        'selected_answer': selected_choice_id,  # For single choice
+        'selected_answers': selected_choice_ids,  # For multiple choice
+        'is_reviewed': bool(is_reviewed),
+        'total_questions': int(exam.questions.count())
     }
     
     return JsonResponse(question_data)
 
 
+def exam_results(request, exam_id, attempt_id):
+    """Display exam results"""
+    exam = get_object_or_404(Exam, id=exam_id)
+    attempt = get_object_or_404(TestSession, id=attempt_id, user=request.user)
+    
+    # Mark exam as completed if not already
+    if not attempt.is_completed:
+        attempt.is_completed = True
+        attempt.completed_at = timezone.now()
+        
+        # Calculate results
+        user_answers = UserAnswer.objects.filter(session=attempt).select_related('question')
+        total_questions = exam.questions.count()
+        correct_count = 0
+        
+        for user_answer in user_answers:
+            if hasattr(user_answer, 'is_correct'):
+                # Try accessing as field first
+                try:
+                    if user_answer.is_correct:  # No parentheses for field
+                        correct_count += 1
+                except:
+                    # If it's a method
+                    if user_answer.is_correct():  # With parentheses for method
+                        correct_count += 1
+        
+        # Update the attempt
+        attempt.correct_answers = correct_count
+        attempt.total_questions = total_questions
+        
+        # Calculate score and passed status
+        if total_questions > 0:
+            score_percentage = (correct_count / total_questions) * 100
+            attempt.score = int(score_percentage)
+            attempt.passed = score_percentage >= 75
+        
+        attempt.save()
+    
+    # Calculate time taken
+    time_taken = "00:00"
+    if attempt.started_at and attempt.completed_at:
+        duration = attempt.completed_at - attempt.started_at
+        minutes = int(duration.total_seconds() // 60)
+        seconds = int(duration.total_seconds() % 60)
+        time_taken = f"{minutes:02d}:{seconds:02d}"
+    
+    context = {
+        'exam': exam,
+        'attempt': attempt,
+        'total_questions': attempt.total_questions or 0,
+        'correct_answers': attempt.correct_answers or 0,  # Changed from correct_count
+        'incorrect_count': (attempt.total_questions or 0) - (attempt.correct_answers or 0),
+        'percentage_score': attempt.score or 0,  # Changed from score to percentage_score
+        'score': attempt.score or 0,
+        'passed': attempt.passed or False,
+        'passing_score': 75,
+        'time_taken': time_taken,  # Added this
+        'user_answers': UserAnswer.objects.filter(session=attempt).select_related('question', 'selected_choices'),
+    }
+    
+    return render(request, 'exam_results.html', context) 
 
+
+def mark_exam_completed(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        attempt_id = data.get('attempt_id')
+        
+        try:
+            attempt = TestSession.objects.get(id=attempt_id, user=request.user)
+            attempt.completed = True
+            attempt.end_time = timezone.now()
+            attempt.save()
+            return JsonResponse({'success': True})
+        except TestSession.DoesNotExist:
+            return JsonResponse({'error': 'Exam attempt not found'}, status=404)
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+    
 def register_view(request):
     if request.method == "POST":
         username = request.POST.get("username")
@@ -529,3 +735,113 @@ def admin_only_view(request):
     if not request.user.is_staff:
         return HttpResponseForbidden("You are not allowed here")
     return render(request, "admin.html")
+
+
+class QuickTestView(TemplateView):
+    """View to start a quick test"""
+    template_name = 'quick_test_start.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # You can add any initial context here
+        return context
+
+class QuickTestQuestionsView(View):
+    def get(self, request):
+        questions = Question.objects.order_by('?')[:5]
+        questions_data = []
+
+        for question in questions:
+            choices = question.choices.all()
+            correct_count = choices.filter(is_correct=True).count()
+
+            # Auto-detect type if needed
+            question_type = (
+                'multiple' if correct_count > 1 else 'single'
+            )
+
+            question_data = {
+                'id': question.id,
+                'text': question.text,
+                'question_type': question_type,
+                'explanation': question.explanation or "",
+                'choices': [
+                    {
+                        'id': c.id,
+                        'text': c.text,
+                        'is_correct': c.is_correct
+                    }
+                    for c in choices
+                ]
+            }
+
+            questions_data.append(question_data)
+
+        return JsonResponse({
+            'questions': questions_data,
+            'total_questions': len(questions_data)
+        })
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class SubmitQuickTestView(View):
+    """View to submit and evaluate quick test answers"""
+    
+    def post(self, request):
+        import json
+        data = json.loads(request.body)
+        user_answers = data.get('answers', {})
+        
+        results = []
+        total_correct = 0
+        total_questions = len(user_answers)
+        
+        for question_id, answer_data in user_answers.items():
+            try:
+                question = Question.objects.get(id=int(question_id))
+                is_correct = False
+                
+                if question.question_type == 'multiple':
+                    user_choice_ids = [int(cid) for cid in answer_data]
+
+                    correct_choice_ids = list(
+                        question.choices.filter(is_correct=True)
+                        .values_list('id', flat=True)
+                    )
+
+                    is_correct = set(user_choice_ids) == set(correct_choice_ids)
+
+                else:
+                    user_choice_id = int(answer_data)
+
+                    correct_choice_id = (
+                        question.choices
+                        .filter(is_correct=True)
+                        .values_list('id', flat=True)
+                        .first()
+                    )
+
+                    is_correct = user_choice_id == correct_choice_id
+               
+                if is_correct:
+                    total_correct += 1
+                
+                results.append({
+                    'question_id': question.id,
+                    'question_text': question.text,
+                    'is_correct': is_correct,
+                    'explanation': question.explanation
+                })
+                
+            except (Question.DoesNotExist, ValueError):
+                continue
+        
+        score_percentage = (total_correct / total_questions * 100) if total_questions > 0 else 0
+        
+        return JsonResponse({
+            'results': results,
+            'total_correct': total_correct,
+            'total_questions': total_questions,
+            'score_percentage': round(score_percentage, 2),
+            'passed': score_percentage >= 50  # 75% passing threshold
+        })

@@ -10,78 +10,82 @@
 
     <!-- LEFT TEXT -->
     <div class="about-left">
-        <h1>About Us</h1>
+        <h1>About <a style="color:darkgreen; font-size:20px;" href="https://PassTheLifeInUKTest.co.uk" >PassTheLifeInUKTest.co.uk</a>
+        </h1>
 
         <p>
-            Lifeintheuktestweb has been created to help you <strong>pass</strong> the Life in the UK Test.
-            We have the experience of having undertaken and <strong>successfully</strong> passed the UK
-            citizenship test ourselves. Here we have gathered numerous questions that cover the contents
-            of the official ‘Life in the United Kingdom: A guide for new residents’ 3rd edition Handbook,
-            valid for the 2024 Life in the UK Test and that will get you ready for the official test.
+            <a style="color:darkgreen;" href="https://PassTheLifeInUKTest.co.uk" >PassTheLifeInUKTest.co.uk</a> was created to make preparing for the Life in the UK Test simpler, clearer, and more accessible for everyone.
         </p>
 
         <p>
-            We strive to keep the information presented here free and as up-to-date as possible to get you
-            prepared for the official test with <strong>confidence</strong>. We thought it was important
-            to offer the option to practice for the test by chapter, so you can assess the knowledge you
-            have gained at the same time as you read the book. Also, we created tests that simulate the real
-            test with questions that cover the entire handbook, the same timing as the exam and with the option
-            to mark the questions you are unsure of to review or respond them at the end.
+            We understand how important this test is for people applying for Indefinite Leave to Remain or British citizenship, and how stressful revision can feel without the right tools. That is why we built a free, easy-to-use practice platform focused on helping candidates revise effectively and gain confidence before test day.
+
         </p>
 
         <p>
-            Many of the questions here have been asked in the <strong>official test</strong>, although the
-            incorrect answers may vary in some cases. We try to collect questions that have been recently
-            asked in the official citizenship test and we always appreciate candidate’s input.
-            So, if you are going to take the exam soon or you have taken it recently please email us and
-            <strong>share it</strong> by <strong>contacting us</strong> so future candidates get a better
-            experience.
+            Our practice questions are developed using the official Life in the UK: A Guide for New Residents (3rd Edition) handbook, which forms the basis of the current Life in the UK Test. The platform allows users to practise in different ways including by topic and through full mock-style tests so they can identify gaps in their knowledge and improve steadily.
         </p>
+
+        <p>
+            We aim to keep this resource free, independent, and regularly updated, while making it practical for real exam preparation. The tests are designed to reflect the structure and difficulty of the official exam, helping users feel familiar with the format and timing.
+        </p>
+
+        <p>
+            <a style="color:darkgreen;" href="https://PassTheLifeInUKTest.co.uk" >PassTheLifeInUKTest.co.uk</a> is an independent educational resource. We are not affiliated with the UK Home Office or any government body. Our goal is simply to support candidates by providing a helpful revision tool they can rely on.
+        </p>
+        <p>
+            We welcome feedback and suggestions from users, as this helps us continue improving the platform for future candidates.
+        </p>
+
 
 
           <!-- BANNER IMAGE BELOW -->
         <div class="banner-section">
-            <img src="{% static 'images/keep-calm-pass-life-uk-test.png' %}" alt="Keep Calm Banner">
+           <h2>🛡️ IMPORTANT: </h2>
+           <p>
+            <a style="color:darkgreen;" href="https://PassTheLifeInUKTest.co.uk" >PassTheLifeInUKTest.co.uk</a> is an independent educational website and is not affiliated with, endorsed by, or connected to the UK Home Office or any official government organisation.
+        </p>
         </div>
+
+        <!-- RIGHT SUPPORT BOX -->
+        <div class="sidebar-column1">
+            <!-- Sidebar Column -->
+            <aside class="sidebar-column">
+                <!-- Support Card -->
+                <div class="support-card">
+                    <div class="support-header">
+                        <h3>Support this project</h3>
+                        <div class="heart-icon">♥</div>
+                    </div>
+                    <div class="support-body">
+                        <p>
+                            This platform is provided free of charge to help people prepare for the Life in the UK Test. If you find it useful and would like to support ongoing development and maintenance, you can make a voluntary contribution below.
+                        </p>
+                        
+                        <div class="thank-you">
+                            <strong>Thanks and good luck!</strong>
+                        </div>
+                        
+                        <!-- Donate Section -->
+                        <div class="donate-section">
+                            <h4>Donate</h4>
+                            <div class="donate-options">
+                                <button class="donate-option">£5</button>
+                                <button class="donate-option">£10</button>
+                                <button class="donate-option">£20</button>
+                                <button class="donate-option">£50</button>
+                                <button class="donate-button custom-amount">Donate Now</button>
+                            </div> 
+                        </div>
+                    </div>
+                </div>
+            </aside>
+            
+         </div>
     </div>
 
-    <!-- RIGHT SUPPORT BOX -->
-    <div class="sidebar-column1">
-        <!-- Sidebar Column -->
-        <aside class="sidebar-column">
-            <!-- Support Card -->
-            <div class="support-card">
-                <div class="support-header">
-                    <h3>Support this project</h3>
-                    <div class="heart-icon">♥</div>
-                </div>
-                <div class="support-body">
-                    <p>
-                        Lifeintheuktestweb has been created as a free source to help migrants 
-                        prepare for the British Citizenship test. If you like this project 
-                        and would like to help us maintain it please donate.
-                    </p>
-                    
-                    <div class="thank-you">
-                        <strong>Thanks and good luck!</strong>
-                    </div>
-                    
-                    <!-- Donate Section -->
-                    <div class="donate-section">
-                        <h4>Donate</h4>
-                        <div class="donate-options">
-                            <button class="donate-option">£5</button>
-                            <button class="donate-option">£10</button>
-                            <button class="donate-option">£20</button>
-                            <button class="donate-option">£50</button>
-                            <button class="donate-button custom-amount">Donate Now</button>
-                        </div> 
-                    </div>
-                </div>
-            </div>
-        </aside>
-        
-     </div>
+   
+    
 
 </div>
 
@@ -142,47 +146,7 @@
         bootstrap.Modal.getInstance(document.getElementById('donateModal')).hide();
     });
     
-    // Mark chapter as complete
-    const markCompleteBtn = document.getElementById('markCompleteBtn');
-    const completionStatus = document.getElementById('completionStatus');
     
-    markCompleteBtn.addEventListener('click', function() {
-        const checkboxes = document.querySelectorAll('.checkpoint input[type="checkbox"]');
-        const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
-        
-        if (allChecked) {
-            completionStatus.textContent = 'Completed!';
-            completionStatus.className = 'completion-status completed';
-            markCompleteBtn.textContent = '✓ Chapter Completed';
-            markCompleteBtn.className = 'btn btn-success';
-            alert('Congratulations! You have completed Chapter 1.');
-        } else {
-            alert('Please check all the understanding checkpoints before marking as complete.');
-        }
-    });
-    
-    // Update progress when checkboxes are checked
-    document.querySelectorAll('.checkpoint input[type="checkbox"]').forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            const checkboxes = document.querySelectorAll('.checkpoint input[type="checkbox"]');
-            const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
-            const total = checkboxes.length;
-            const progress = Math.round((checkedCount / total) * 100);
-            
-            // Update progress in header
-            const progressElement = document.querySelector('.chapter-meta .progress strong');
-            if (progressElement) {
-                progressElement.textContent = `${progress}%`;
-            }
-        });
-    });
-    
-    // Quiz button
-    document.querySelector('.start-quiz-btn').addEventListener('click', function(e) {
-        e.preventDefault();
-        alert('Starting Chapter 1 quiz. Good luck!');
-        // In production, this would start the quiz
-    });
     });
 </script>
 

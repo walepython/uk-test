@@ -5,17 +5,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Life in the UK Test Web{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"> -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="{% static 'home.css' %}">
     <style>
         /* NAVBAR STYLING */
 
-/* FIXED NAVBAR - CORRECT */
-/* NAVBAR STYLING - FIXED VERSION */
 
-/* FIXED NAVBAR */
 .navbar {
     position: fixed;
     top: 0;
@@ -23,7 +26,8 @@
     width: 100%;
     height: 80px;
     z-index: 1100;
-    background-color: #0d6efd !important; /* Ensure background stays */
+    font-family: 'Poppins', sans-serif;
+    background-color:#6f42c1 !important; 
 }
 
 /* PUSH PAGE CONTENT DOWN */
@@ -36,6 +40,7 @@ body {
     font-size: 20px;
     font-weight: 700;
     letter-spacing: 0.5px;
+    font-family: 'Poppins', sans-serif;
     color: #ffffff !important;
 }
 
@@ -47,6 +52,7 @@ body {
     margin: 0 12px;
     color: #ffffff !important;
     position: relative;
+    font-family: 'Poppins', sans-serif;
 }
 
 /* Hover effect */
@@ -70,25 +76,23 @@ body {
     width: 100%;
 }
 
-/* My Account icon spacing */
+
 .navbar-nav .fa-user {
     margin-right: 6px;
 }
 
-/* Dropdown menu styling */
+
 .dropdown-menu {
     border-radius: 8px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.15);
 }
 
-/* Spacing between main nav items */
 .navbar-nav.me-auto {
     gap: 10px;
 }
 
 /* ========== MOBILE STYLES (only for small screens) ========== */
-@media (max-width: 991.98px) { /* Changed from 768px to 991.98px for consistency */
-    /* Mobile navbar height */
+@media (max-width: 991.98px) { 
     .navbar {
         height: 80px;
         padding: 0;
@@ -103,12 +107,12 @@ body {
     /* Mobile sidebar styling */
     .navbar-collapse {
         position: fixed;
-        top: 0;
+        top: 80px;
         left: -250px;
         width: 250px;
-        height: 100%;
-        background-color: #0d6efd;
-        padding: 80px 20px 20px 20px;
+        height: auto;
+        background-color: #6f42c1;
+        padding: 30px 20px 20px 20px;
         z-index: 1050;
         overflow-y: auto;
         transition: left 0.3s ease;
@@ -240,6 +244,7 @@ footer {
 .footer-social {
     display: flex;
     gap: 15px;
+    align-items:center;
 }
 
 .social-icon {
@@ -311,6 +316,7 @@ footer {
 .fa-facebook-f{
     display: flex;
     align-items:center;
+    text-align:center;
     justify-content:center;
     background-color:#1877F2;
     width:35px;
@@ -415,7 +421,7 @@ footer {
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
             <a class="navbar-brand" href="{% url 'home' %}">
-                Life in the UK Test Web
+                Pass The Life in UK Test
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -424,7 +430,7 @@ footer {
                 <ul class="navbar-nav me-auto">
 
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'study_materials' %}">Study Materials</a>
+                        <a class="nav-link" href="{% url 'study_materials' %}">Handbook </a>
                     </li>
                     {% comment %}
                     <li class="nav-item">
@@ -433,17 +439,17 @@ footer {
                     {% endcomment %}
            
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'life_in_uk_tests' %}">Chapter</a>  <!-- Add this -->
+                        <a class="nav-link" href="{% url 'life_in_uk_tests' %}">Practice</a>  <!-- Add this -->
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'exam_list' %}">EXAMS</a>
+                        <a class="nav-link" href="{% url 'exam_list' %}">Mock Exams</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'about' %}">About Us</a>
+                        <a class="nav-link" href="{% url 'about' %}">About</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'contact' %}">Contact Us</a>
+                        <a class="nav-link" href="{% url 'contact' %}">Contact</a>
                     </li>
                 </ul>
                 <ul class="navbar-nav">
@@ -460,7 +466,17 @@ footer {
                                         Hello, {{ user.username }}
                                     </span>
                                 </li>
+                        
+                                {% if user.is_staff %}
+                                <li>
+                                    <a class="dropdown-item" href="/admin/">
+                                        <i class="fa fa-lock me-2"></i> Admin Dashboard
+                                    </a>
+                                </li>
+                                {% endif %}
+                        
                                 <li><hr class="dropdown-divider"></li>
+                        
                                 <li>
                                     <a class="dropdown-item" href="{% url 'dashboard' %}">
                                         Dashboard
@@ -484,6 +500,7 @@ footer {
                                 </li>
                             {% endif %}
                         </ul>
+                        
                     </li>
                 </ul>
                 
@@ -507,6 +524,10 @@ footer {
         {% block content %}
         {% endblock %}
     </main>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <!-- Bootstrap JS (optional but recommended) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Footer -->
     <!-- Footer -->
@@ -517,9 +538,9 @@ footer {
             <!-- Copyright section -->
             <div class="copyright">
                 <p>
-                    © Copyright 2025 | Life in the UK Test Web | All Rights Reserved | 
-                    <a href="{/}">Terms and Conditions</a> | 
-                    <a href="{/}">Privacy Policy</a>
+                    © Copyright 2026 | Pass The Life in UK Test | All Rights Reserved | 
+                    <a href="{% url 'term_and_condition' %}">Terms and Conditions</a> | 
+                    <a href="{% url 'privacy' %}">Privacy Policy</a>
                 </p>
             </div>
             
@@ -565,39 +586,27 @@ footer {
         </div>
     </div>
 </footer>
-    <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const navbar = document.querySelector('.navbar-collapse');
-    const toggler = document.querySelector('.navbar-toggler');
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const navbar = document.querySelector('.navbar-collapse');
+        const toggler = document.querySelector('.navbar-toggler');
     
-    // Close mobile menu when clicking outside
-    document.addEventListener('click', function(event) {
-        const isClickInsideNavbar = navbar.contains(event.target);
-        const isClickOnToggler = toggler.contains(event.target);
-        
-        if (!isClickInsideNavbar && !isClickOnToggler && navbar.classList.contains('show')) {
-            // Bootstrap 5 way to collapse
-            const collapseInstance = bootstrap.Collapse.getInstance(navbar);
-            if (collapseInstance) {
-                collapseInstance.hide();
+        document.addEventListener('click', function (event) {
+            if (
+                window.innerWidth < 992 &&
+                navbar.classList.contains('show') &&
+                !event.target.closest('.navbar')
+            ) {
+                const collapseInstance = bootstrap.Collapse.getInstance(navbar);
+                if (collapseInstance) collapseInstance.hide();
             }
-        }
+        });
     });
-    
-    // Close menu when clicking on a link (optional)
-    navbar.addEventListener('click', function(event) {
-        if (event.target.tagName === 'A' && window.innerWidth < 992) {
-            const collapseInstance = bootstrap.Collapse.getInstance(navbar);
-            if (collapseInstance) {
-                collapseInstance.hide();
-            }
-        }
-    });
-});
-</script>
+    </script>
+
         
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script> -->
     {% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -7,7 +7,7 @@
 <div class="container py-4">
     <!-- Header Section -->
     <div class="text-center mb-5">
-        <h1 class="display-4 fw-bold text-primary mb-3">Life in the UK Tests</h1>
+        <h1 class="display-4 fw-bold  mb-3">Pass The Life in UK Tests</h1>
         <p class="lead text-muted">Practice for your British Citizenship test with our official-style practice exams.</p>
     </div>
 
@@ -16,7 +16,7 @@
         {% for test in tests %}
         <div class="col-lg-3 col-md-6">
             <div class="card test-card h-100 shadow-sm border-0">
-                <div class="card-header bg-primary text-white text-center py-3">
+                <div class="card-header  text-white text-center py-3">
                     <h4 class="mb-0 fw-bold">{{ test.title }}</h4>
                 </div>
                 <div class="card-body d-flex flex-column">
@@ -57,7 +57,7 @@
         <div class="col-12">
             <div class="alert alert-info text-center py-4">
                 <i class="fas fa-info-circle fa-3x mb-3 text-primary"></i>
-                <h4>No Life in the UK tests available yet.</h4>
+                <h4>No Pass The Life in UK Tests available yet.</h4>
                 <p class="mb-0">We're preparing the test series. Please check back soon.</p>
             </div>
         </div>
@@ -75,9 +75,7 @@
             <div class="row justify-content-center">
                 <div class="col-lg-8">
                     <p class="fs-5 mb-4">
-                        Lifelntheuktestweb has been created as a free source to help migrants 
-                        prepare for the British Citizenship test. If you like this project 
-                        and would like to help us maintain it please donate.
+                        This platform is provided free of charge to help people prepare for the Life in the UK Test. If you find it useful and would like to support ongoing development and maintenance, you can make a voluntary contribution below.
                     </p>
                     
                     <p class="fs-4 mb-4 fw-bold text-success">
@@ -218,14 +216,21 @@
 
 <style>
     /* Custom styles for this page */
+
+    .text-center{
+        color: #6f42c1;
+    }
     .test-card {
         border-radius: 10px;
         overflow: hidden;
         border: 1px solid #dee2e6;
     }
+    .test-card .card-header{
+        background-color:#6f42c1;
+    }
     
     .test-card .card-header {
-        border-bottom: 3px solid #0b5ed7;
+        border-bottom: 3px solid ;
     }
     
     .test-card:hover {
