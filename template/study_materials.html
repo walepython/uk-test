@@ -151,7 +151,7 @@
                     <div class="quick-test-section">
                         <h4>TEST YOUR KNOWLEDGE</h4>
                         <p>Try a quick 5-question quiz</p>
-                        <a href="#" class="quick-test-btn">Start Quick Test</a>
+                        <a href="{% url 'quick_test' %}" class="quick-test-btn">Start Quick Test</a>
                     </div>
                 </div>
             </div>
@@ -245,12 +245,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     
-    // Quick test button
-    document.querySelector('.quick-test-btn').addEventListener('click', function(e) {
-        e.preventDefault();
-        alert('Starting 5-question quick test... Good luck!');
-        // In production, this would start a quick test
-    });
+    // // Quick test button
+    // document.querySelector('.quick-test-btn').addEventListener('click', function(e) {
+    //     e.preventDefault();
+    //     alert('Starting 5-question quick test... Good luck!');
+    //     // In production, this would start a quick test
+    // });
 });
 </script>
 {% endblock %}
